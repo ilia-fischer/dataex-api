@@ -11,14 +11,19 @@ app to listen on a specific port.
 To run install nodejs and MongoDB dependencies. The API expects fintech database to be pre-created. MongoDB Server is expected locally. See the connection string in the db file.
 The following node npm dependencies need to be installed from the project directory:
 
+
 npm install
+
 npm install jsonwebtoken --save
+
 npm install bcryptjs --save
 
 To run the server execute:
 
 > node server.js
+
 Express server listening on port 3000
+
 
 Usage examples:
 
@@ -39,7 +44,9 @@ Response: {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTMwMWMzOTAyMzJiMDcyOGUxZmNjNCIsInJvbGUiOiJBZG1pbmlzdHJhdG9yIiwiaWF0IjoxNTIwNjMyMjU5LCJleHAiOjE1MjA3MTg2NTl9.bDF6PRuZDs2f4daPmLJXvtOpnRMgREl4z9QI1LLLLJI"
 }
 
+
 Please note the the password's hash only is stored on the server.
+
 The token is a JWT valid by default for 24 hours and it is expected as the authentication token in subsequent requests:
 
 curl -i -X GET \
@@ -53,6 +60,7 @@ Response: {
     "role": "Administrator",
     "__v": 0
 }
+
 
 The following Users controller supports full CRUD on the User model and requires Administrator role authorization:
 
@@ -102,6 +110,7 @@ Response: [
         "__v": 0
     }
 ]
+
 
 The following Datasets controller supports full CRUD on the Dataset model and currently does not require authorization:
 
