@@ -14,7 +14,10 @@ router.post('/', VerifyToken('Everyone'), function (req, res) {
             name: req.body.name,
             description: req.body.description,
             price: req.body.price,
-            classifications: req.body.classifications,
+            category: req.body.category,
+            format: req.body.format,
+            url: req.body.url,
+            notes: req.body.notes,
             provider: req.body.provider,
             consumers: req.body.consumers
         }, 

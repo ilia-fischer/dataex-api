@@ -61,6 +61,20 @@ Response: {
     "__v": 0
 }
 
+Authentication:
+
+curl -i -X POST \
+   -H "Content-Type:application/x-www-form-urlencoded" \
+   -d "email=alexa@amazon.com" \
+   -d "password=changeme" \
+ 'http://localhost:3000/api/auth/login'
+
+
+Response: {
+    "auth": true,
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTJlOTkyMDNlNGViMDlkNDIwOGUwNSIsInJvbGUiOiJBZG1pbmlzdHJhdG9yIiwiaWF0IjoxNTIwNzAxNTk4LCJleHAiOjE1MjA3ODc5OTh9.ec4yqveHFY18-pY34ze-3Emb5-t_1-KNL9WiGXD4AwM"
+}
+
 
 The following Users controller supports full CRUD on the User model and requires Administrator role authorization:
 
