@@ -3,7 +3,7 @@ var DatesetSchema = new mongoose.Schema({
   name: String,
   description: String,
   price: Number,
-  category: [String],
+  categories: [String],
   format: String,
   url: String,
   notes: String,
