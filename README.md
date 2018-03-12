@@ -25,16 +25,16 @@ Docker:
 1. To build image: `docker build -t dataex-api .`
 
 2. If you have independent mongodb:
-  
-  a. To run container: `docker run -p 3000:3000 --name dataex-api-container dataex-api` 
-  
+
+  a. To run container: `docker run -p 3000:3000 --name dataex-api-container dataex-api`
+
   b. To stop container: `docker rm -f dataex-api-container``
 
 3. If you want to run mongodb as part of Docker setup:
-  
+
   a. To run the whole setup: `docker-compose up`
-  
-  b. To stop the whole setup: `docker-compose down`
+
+  b. To stop the whole setup: `docker-compose stop` (Note: `docker-compose down` will remove the data!!!)
 
 Usage examples:
 
