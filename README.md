@@ -14,6 +14,11 @@ The following node npm dependencies need to be installed from the project direct
 
 npm install
 
+npm install jsonwebtoken --save
+npm install bcryptjs --save
+npm install express --save
+npm install mongoose --save
+
 To run the server execute:
 
 > npm start
@@ -22,19 +27,17 @@ Express server listening on port 3000
 
 Docker:
 
-1. To build image: `docker build -t dataex-api .`
+* To build image: `docker build -t dataex-api .`
 
-2. If you have independent mongodb:
+* If you have independent mongodb:
 
-  a. To run container: `docker run -p 3000:3000 --name dataex-api-container dataex-api`
+    * To run container: `docker run -p 3000:3000 --name dataex-api-container dataex-api`
+    * To stop container: `docker rm -f dataex-api-container``
 
-  b. To stop container: `docker rm -f dataex-api-container``
+* If you want to run mongodb as part of Docker setup:
 
-3. If you want to run mongodb as part of Docker setup:
-
-  a. To run the whole setup: `docker-compose up`
-
-  b. To stop the whole setup: `docker-compose stop` (Note: `docker-compose down` will remove the data!!!)
+    * To run the whole setup: `docker-compose up`
+    * To stop the whole setup: `docker-compose stop` (Note: Use `stop` since `docker-compose down` will remove the data!!!)
 
 Usage examples:
 
@@ -145,7 +148,7 @@ curl -i -X GET \
 
 Response: [
     {
-        "classifications": [
+        "categories": [
         ],
         "consumers": [
         ],
@@ -154,7 +157,7 @@ Response: [
         "__v": 0
     },
     {
-        "classifications": [
+        "categories": [
             "[\"weather\", \"insurance\"]"
         ],
         "consumers": [
@@ -163,6 +166,70 @@ Response: [
         "name": "weather",
         "description": "All about weather",
         "price": 100500,
+        "__v": 0
+    }
+]
+
+The following calls require Provider Authz:
+
+curl -i -X POST \
+   -H "x-access-token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTY4YTgwZWJjOTE4MjY2NDRhMjRlNiIsInJvbGUiOiJBZG1pbmlzdHJhdG9yIiwiaWF0IjoxNTIwODYzODcyLCJleHAiOjE1MjA5NTAyNzJ9.8esAWw7vsXHIjeWBvjTz5P59JEfYhgOHQm9zNunJnOs" \
+   -H "Content-Type:application/json" \
+   -d \
+'{
+  "name": "weather",
+  "description": "All aboiut weather",
+  "price": 100500,
+  "categories": ["category1", "category2"],
+  "provider": {"providerId": "provider@mail.com"},
+  "format": "csv",
+  "url": "www.weather.com",
+  "notes": "notes"
+}' \
+ 'http://127.0.0.1:3000/datasets'
+
+Response: {
+    "provider": {
+        "providerId": "provider@mail.com"
+    },
+    "name": "weather",
+    "description": "All aboiut weather",
+    "price": 100500,
+    "categories": [
+        "category1",
+        "category2"
+    ],
+    "format": "csv",
+    "url": "www.weather.com",
+    "notes": "notes",
+    "consumers": [
+    ],
+    "_id": "5aa68e1f6749d20e10c8ac72",
+    "__v": 0
+}
+
+curl -i -X GET \
+   -H "x-access-token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTY5MjU5Njc0OWQyMGUxMGM4YWM3NiIsInJvbGUiOiJQcm92aWRlciIsImlhdCI6MTUyMDg2NTg4MSwiZXhwIjoxNTIwOTUyMjgxfQ.MGaGEHbVOxxcVgq4BQjNrbE8ZA4qBR7dL9Er4lH7jrA" \
+ 'http://127.0.0.1:3000/datasets?provider=provider%40mail.com'
+
+Response: [
+    {
+        "provider": {
+            "providerId": "provider@mail.com"
+        },
+        "categories": [
+            "category1",
+            "category2"
+        ],
+        "consumers": [
+        ],
+        "_id": "5aa68e1f6749d20e10c8ac72",
+        "name": "weather",
+        "description": "All aboiut weather",
+        "price": 100500,
+        "format": "csv",
+        "url": "www.weather.com",
+        "notes": "notes",
         "__v": 0
     }
 ]

@@ -15,6 +15,7 @@ router.post('/', VerifyToken('Administrator'), function (req, res) {
     User.create({
             name : req.body.name,
             email : req.body.email,
+            role : req.body.role,
             password: hashedPassword
         }, 
         function (err, user) {
