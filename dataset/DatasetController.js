@@ -23,9 +23,8 @@ router.post('/', VerifyToken('Provider'), function (req, res) {
 				categories: req.body.categories,
 				format: req.body.format,
 				url: req.body.url,
-				owner: user.email,
 				notes: req.body.notes,
-				provider: req.body.provider,
+				provider: { providerId: user.email},
 				consumers: req.body.consumers
 			}, 
 			function (err, dataset) {

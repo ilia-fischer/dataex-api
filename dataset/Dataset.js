@@ -6,7 +6,6 @@ var DatesetSchema = new mongoose.Schema({
   categories: [String],
   format: String,
   url: String,
-  owner: String,
   notes: String,
   provider: {
     providerId: String 
