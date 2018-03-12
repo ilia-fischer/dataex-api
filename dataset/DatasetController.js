@@ -9,7 +9,7 @@ var Dataset = require('./Dataset');
 var VerifyToken = require('../auth/VerifyToken');
 
 // CREATES A NEW DATASET
-router.post('/', VerifyToken('Everyone'), function (req, res) {
+router.post('/', VerifyToken('Provider'), function (req, res) {
     Dataset.create({
             name: req.body.name,
             description: req.body.description,
@@ -27,12 +27,27 @@ router.post('/', VerifyToken('Everyone'), function (req, res) {
         });
 });
 
+var isProviderQuery = function (authProvider, authEveryone) {
+    return function (req, res, next) {
+        if (req.query.provider) return authProvider(req, res, next);
+        return authEveryone(req, res, next);
+    };
+};
+
 // RETURNS ALL THE DATASETS IN THE DATABASE
-router.get('/', VerifyToken('Everyone'), function (req, res) {
-    Dataset.find({}, function (err, DATASETS) {
-        if (err) return res.status(500).send("There was a problem finding the datasets.");
-        res.status(200).send(DATASETS);
-    });
+router.get('/', isProviderQuery(VerifyToken('Provider'), VerifyToken('Everyone')), function (req, res) {
+    if (req.query.provider) {
+        Dataset.find({
+            'provider': { "providerId": req.query.provider } }, function (err, DATASETS) {
+            if (err) return res.status(500).send("There was a problem finding the datasets.");
+            res.status(200).send(DATASETS);
+        });
+    } else {
+        Dataset.find({}, function (err, DATASETS) {
+            if (err) return res.status(500).send("There was a problem finding the datasets.");
+            res.status(200).send(DATASETS);
+        });
+    }
 });
 
 // GETS A SINGLE DATASET FROM THE DATABASE
@@ -45,7 +60,7 @@ router.get('/:id', VerifyToken('Everyone'), function (req, res) {
 });
 
 // DELETES A DATASET FROM THE DATABASE
-router.delete('/:id', VerifyToken('Everyone'), function (req, res) {
+router.delete('/:id', VerifyToken('Provider'), function (req, res) {
     Dataset.findByIdAndRemove(req.params.id, function (err, dataset) {
         if (err) return res.status(500).send("There was a problem deleting the dataset.");
         res.status(200).send("Dataset: "+ dataset.name +" was deleted.");
@@ -53,7 +68,7 @@ router.delete('/:id', VerifyToken('Everyone'), function (req, res) {
 });
 
 // UPDATES A SINGLE DATASET IN THE DATABASE
-router.put('/:id', VerifyToken('Everyone'), function (req, res) {
+router.put('/:id', VerifyToken('Provider'), function (req, res) {
     Dataset.findByIdAndUpdate(req.params.id, req.body, {new: true}, function (err, dataset) {
         if (err) return res.status(500).send("There was a problem updating the dataset.");
         res.status(200).send(dataset);
