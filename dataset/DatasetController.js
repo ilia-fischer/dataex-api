@@ -7,24 +7,32 @@ router.use(bodyParser.json());
 var Dataset = require('./Dataset');
 
 var VerifyToken = require('../auth/VerifyToken');
+var User = require('../user/User');
 
 // CREATES A NEW DATASET
 router.post('/', VerifyToken('Provider'), function (req, res) {
-    Dataset.create({
-            name: req.body.name,
-            description: req.body.description,
-            price: req.body.price,
-            categories: req.body.categories,
-            format: req.body.format,
-            url: req.body.url,
-            notes: req.body.notes,
-            provider: req.body.provider,
-            consumers: req.body.consumers
-        }, 
-        function (err, dataset) {
-            if (err) return res.status(500).send("There was a problem adding the information to the database.");
-            res.status(200).send(dataset);
-        });
+
+    User.findById(req.userId, function (err, user) {
+        if (err) return res.status(500).send("There was a problem finding the user.");
+        if (!user) return res.status(404).send("No user found.");
+		
+		Dataset.create({
+				name: req.body.name,
+				description: req.body.description,
+				price: req.body.price,
+				categories: req.body.categories,
+				format: req.body.format,
+				url: req.body.url,
+				owner: user.email,
+				notes: req.body.notes,
+				provider: req.body.provider,
+				consumers: req.body.consumers
+			}, 
+			function (err, dataset) {
+				if (err) return res.status(500).send("There was a problem adding the information to the database.");
+				res.status(200).send(dataset);
+			});
+		});	
 });
 
 var isProviderQuery = function (authProvider, authEveryone) {

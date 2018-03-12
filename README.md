@@ -14,6 +14,11 @@ The following node npm dependencies need to be installed from the project direct
 
 npm install
 
+npm install jsonwebtoken --save
+npm install bcryptjs --save
+npm install express --save
+npm install mongoose --save
+
 To run the server execute:
 
 > npm start
