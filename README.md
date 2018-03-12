@@ -22,19 +22,17 @@ Express server listening on port 3000
 
 Docker:
 
-1. To build image: `docker build -t dataex-api .`
+* To build image: `docker build -t dataex-api .`
 
-2. If you have independent mongodb:
+* If you have independent mongodb:
   
-  a. To run container: `docker run -p 3000:3000 --name dataex-api-container dataex-api` 
-  
-  b. To stop container: `docker rm -f dataex-api-container``
+    * To run container: `docker run -p 3000:3000 --name dataex-api-container dataex-api`
+    * To stop container: `docker rm -f dataex-api-container``
 
-3. If you want to run mongodb as part of Docker setup:
+* If you want to run mongodb as part of Docker setup:
   
-  a. To run the whole setup: `docker-compose up`
-  
-  b. To stop the whole setup: `docker-compose down`
+    * To run the whole setup: `docker-compose up`
+    * To stop the whole setup: `docker-compose down`
 
 Usage examples:
 
