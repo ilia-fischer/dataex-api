@@ -14,16 +14,17 @@ The following node npm dependencies need to be installed from the project direct
 
 npm install
 
-npm install jsonwebtoken --save
-
-npm install bcryptjs --save
-
 To run the server execute:
 
-> node server.js
+> npm start
 
 Express server listening on port 3000
 
+Docker:
+
+1. To build image: `docker build -t dataex-api .`
+2. To run container: `docker run -p 3000:3000 --name dataex-api-container dataex-api` 
+3. To stop container: `docker rm -f dataex-api-container``
 
 Usage examples:
 
