@@ -44,23 +44,30 @@ var isProviderQuery = function (authProvider, authEveryone) {
 // RETURNS ALL THE DATASETS IN THE DATABASE
 router.get('/', isProviderQuery(VerifyToken('Provider'), VerifyToken('Everyone')), function (req, res) {
     if (req.query.provider) {
-        Dataset.find({
-            'provider': { "providerId": req.query.provider }
-        }, function (err, DATASETS) {
-            if (err) return res.status(500).send("There was a problem finding the datasets.");
-            res.status(200).send(DATASETS);
-        });
+        if (req.query.provider === 'ALL') {
+            Dataset.find({}, function (err, datasets) {
+                if (err) return res.status(500).send("There was a problem finding the datasets.");
+                res.status(200).send(datasets);
+            });
+        } else {
+            Dataset.find({
+                'provider': { "providerId": req.query.provider }
+            }, function (err, datasets) {
+                if (err) return res.status(500).send("There was a problem finding the datasets.");
+                res.status(200).send(datasets);
+            });
+        }
     } else {
-        Dataset.find({}, function (err, DATASETS) {
+        Dataset.find({}, { provider: 0, consumers: 0 }, function (err, datasets) {
             if (err) return res.status(500).send("There was a problem finding the datasets.");
-            res.status(200).send(DATASETS);
+            res.status(200).send(datasets);
         });
     }
 });
 
 // GETS A SINGLE DATASET FROM THE DATABASE
 router.get('/:id', VerifyToken('Everyone'), function (req, res) {
-    Dataset.findById(req.params.id, function (err, dataset) {
+    Dataset.findById(req.params.id, { provider: 0, consumers: 0 }, function (err, dataset) {
         if (err) return res.status(500).send("There was a problem finding the dataset.");
         if (!dataset) return res.status(404).send("No dataset found.");
         res.status(200).send(dataset);
