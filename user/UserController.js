@@ -11,17 +11,23 @@ var VerifyToken = require('../auth/VerifyToken');
 
 // CREATES A NEW USER
 router.post('/', VerifyToken('Administrator'), function (req, res) {
-    var hashedPassword = bcrypt.hashSync(req.body.password, 8);
-    User.create({
-            name : req.body.name,
-            email : req.body.email,
-            role : req.body.role,
+
+    User.findOne({ email: req.body.email }, function (err, user) {
+        if (err) return res.status(500).send("There was a problem verifying the user.");
+        if (user) return res.status(500).send("Email already exists.");
+
+        var hashedPassword = bcrypt.hashSync(req.body.password, 8);
+        User.create({
+            name: req.body.name,
+            email: req.body.email,
+            role: req.body.role,
             password: hashedPassword
-        }, 
-        function (err, user) {
-            if (err) return res.status(500).send("There was a problem adding the information to the database.");
-            res.status(200).send(user);
-        });
+        },
+            function (err, user) {
+                if (err) return res.status(500).send("There was a problem adding the information to the database.");
+                res.status(200).send(user);
+            });
+    });
 });
 
 // RETURNS ALL THE USERS IN THE DATABASE
@@ -45,17 +51,8 @@ router.get('/:id', VerifyToken('Administrator'), function (req, res) {
 router.delete('/:id', VerifyToken('Administrator'), function (req, res) {
     User.findByIdAndRemove(req.params.id, function (err, user) {
         if (err) return res.status(500).send("There was a problem deleting the user.");
-        res.status(200).send("User: "+ user.name +" was deleted.");
+        res.status(200).send("User: " + user.name + " was deleted.");
     });
 });
-
-// UPDATES A SINGLE USER IN THE DATABASE
-router.put('/:id', VerifyToken('Administrator'), function (req, res) {
-    User.findByIdAndUpdate(req.params.id, req.body, {new: true}, function (err, user) {
-        if (err) return res.status(500).send("There was a problem updating the user.");
-        res.status(200).send(user);
-    });
-});
-
 
 module.exports = router;

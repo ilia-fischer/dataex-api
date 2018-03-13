@@ -15,23 +15,23 @@ router.post('/', VerifyToken('Provider'), function (req, res) {
     User.findById(req.userId, function (err, user) {
         if (err) return res.status(500).send("There was a problem finding the user.");
         if (!user) return res.status(404).send("No user found.");
-		
-		Dataset.create({
-				name: req.body.name,
-				description: req.body.description,
-				price: req.body.price,
-				categories: req.body.categories,
-				format: req.body.format,
-				url: req.body.url,
-				notes: req.body.notes,
-				provider: { providerId: user.email},
-				consumers: req.body.consumers
-			}, 
-			function (err, dataset) {
-				if (err) return res.status(500).send("There was a problem adding the information to the database.");
-				res.status(200).send(dataset);
-			});
-		});	
+
+        Dataset.create({
+            name: req.body.name,
+            description: req.body.description,
+            price: req.body.price,
+            categories: req.body.categories,
+            format: req.body.format,
+            url: req.body.url,
+            notes: req.body.notes,
+            provider: { providerId: user.email },
+            consumers: req.body.consumers
+        },
+            function (err, dataset) {
+                if (err) return res.status(500).send("There was a problem adding the information to the database.");
+                res.status(200).send(dataset);
+            });
+    });
 });
 
 var isProviderQuery = function (authProvider, authEveryone) {
@@ -45,7 +45,8 @@ var isProviderQuery = function (authProvider, authEveryone) {
 router.get('/', isProviderQuery(VerifyToken('Provider'), VerifyToken('Everyone')), function (req, res) {
     if (req.query.provider) {
         Dataset.find({
-            'provider': { "providerId": req.query.provider } }, function (err, DATASETS) {
+            'provider': { "providerId": req.query.provider }
+        }, function (err, DATASETS) {
             if (err) return res.status(500).send("There was a problem finding the datasets.");
             res.status(200).send(DATASETS);
         });
@@ -70,13 +71,13 @@ router.get('/:id', VerifyToken('Everyone'), function (req, res) {
 router.delete('/:id', VerifyToken('Provider'), function (req, res) {
     Dataset.findByIdAndRemove(req.params.id, function (err, dataset) {
         if (err) return res.status(500).send("There was a problem deleting the dataset.");
-        res.status(200).send("Dataset: "+ dataset.name +" was deleted.");
+        res.status(200).send("Dataset: " + dataset.name + " was deleted.");
     });
 });
 
 // UPDATES A SINGLE DATASET IN THE DATABASE
 router.put('/:id', VerifyToken('Provider'), function (req, res) {
-    Dataset.findByIdAndUpdate(req.params.id, req.body, {new: true}, function (err, dataset) {
+    Dataset.findByIdAndUpdate(req.params.id, req.body, { new: true }, function (err, dataset) {
         if (err) return res.status(500).send("There was a problem updating the dataset.");
         res.status(200).send(dataset);
     });
