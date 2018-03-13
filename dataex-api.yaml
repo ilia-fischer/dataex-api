@@ -358,27 +358,6 @@ paths:
           description: "Not authenticated"
         401:
           description: "Unauthorized"
-    delete:
-      summary: "Transaction API"
-      description: "Requires Administrator Role."
-      produces:
-        - application/json'
-      parameters:
-      - name: "id"
-        in: "path"
-        description: "ID of the Transaction to delete"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Transaction successfully deleted"
-        500:
-          description: "Server Error"
-        403:
-          description: "Not authenticated"
-        401:
-          description: "Unauthorized"
-        
 definitions:
   User:
     type: object
@@ -447,7 +426,7 @@ definitions:
         type: string
         description: 'Unique identifier'
         readOnly: true
-      dataset:
+      datasetId:
         type: string
         description: 'Dataset unique identifier'
       consumer:
@@ -456,6 +435,10 @@ definitions:
           consumerId:
             type: string
             description: 'User email'
+      date:
+        type: string
+        format: date-time
+        description: 'UTC time of the transaction'
   AuthToken:
     type: object
     properties:

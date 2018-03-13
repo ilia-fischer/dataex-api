@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var TransactionSchema = new mongoose.Schema({
-    dataset: String,
+    datasetId: String,
     consumer: {
         consumerId: String
     },

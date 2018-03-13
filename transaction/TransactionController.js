@@ -17,7 +17,7 @@ router.post('/', VerifyToken('Consumer'), function (req, res) {
         if (err) return res.status(500).send("There was a problem finding the user.");
         if (!user) return res.status(404).send("No user found.");
 
-        Dataset.findById(req.body.dataset, function (err, dataset) {
+        Dataset.findById(req.body.datasetId, function (err, dataset) {
             if (err) return res.status(500).send("There was a problem finding the dataset.");
             if (!dataset) return res.status(404).send("No dataset found.");
 
@@ -25,7 +25,7 @@ router.post('/', VerifyToken('Consumer'), function (req, res) {
                 consumer: {
                     consumerId: user.email
                 },
-                dataset: dataset.id
+                datasetId: dataset.id
             },
                 function (err, transaction) {
                     if (err) return res.status(500).send("There was a problem adding the information to the database.");
@@ -56,7 +56,7 @@ router.get('/', isProviderOrConsumerQuery(VerifyToken('Provider'), VerifyToken('
             if (err) return res.status(500).send("There was a problem finding the datasets.");
 
             Transaction.find({
-                'dataset': { $in: datasetIds }
+                'datasetId': { $in: datasetIds }
             }
                 , function (err, transactions) {
                     if (err) return res.status(500).send("There was a problem finding the transactions.");
@@ -85,14 +85,6 @@ router.get('/:id', VerifyToken('Administrator'), function (req, res) {
         if (err) return res.status(500).send("There was a problem finding the transaction.");
         if (!transaction) return res.status(404).send("No transaction found.");
         res.status(200).send(transaction);
-    });
-});
-
-// DELETES A TRANSACTION FROM THE DATABASE
-router.delete('/:id', VerifyToken('Administrator'), function (req, res) {
-    Transaction.findByIdAndRemove(req.params.id, function (err, transaction) {
-        if (err) return res.status(500).send("There was a problem deleting the transaction.");
-        res.status(200).send("Transaction: " + transaction.id + " was deleted.");
     });
 });
 
