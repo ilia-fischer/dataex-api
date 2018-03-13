@@ -9,8 +9,11 @@ The server file is used to spin up the server and tells the
 app to listen on a specific port.
 
 To run install nodejs and MongoDB dependencies. The API expects fintech database to be pre-created. MongoDB Server is expected locally. See the connection string in the db file.
-The following node npm dependencies need to be installed from the project directory:
 
+Uses Google Cloud Platform Natural Language API : https://cloud.google.com/nodejs/docs/reference/language/1.1.x/
+
+
+The following node npm dependencies need to be installed from the project directory:
 
 npm install
 
@@ -18,6 +21,7 @@ npm install jsonwebtoken --save
 npm install bcryptjs --save
 npm install express --save
 npm install mongoose --save
+npm install @google-cloud/language --save
 
 To run the server execute:
 
