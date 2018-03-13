@@ -43,6 +43,9 @@ Docker:
     * To run the whole setup: `docker-compose up`
     * To stop the whole setup: `docker-compose stop` (Note: Use `stop` since `docker-compose down` will remove the data!!!)
 
+
+To read the API definitions please import and open the dataex-api.yaml file located at the root of the project with the Swagger Editor tool: https://editor.swagger.io/
+
 Usage examples:
 
 User registration

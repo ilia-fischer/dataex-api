@@ -1,0 +1,466 @@
+swagger: '2.0'
+info:
+  description: ''
+  version: 1.0.0
+  title: 'dataex-api'
+paths:
+  /api/auth/register:
+    post:
+      summary: 'Register a new User'
+      consumes: 
+      - "application/x-www-form-urlencoded"
+      parameters:
+        - in: formData
+          name: name
+          type: string
+          description: A person's name.
+        - in: formData
+          name: email
+          type: string
+          description: A person's email - unique identifier.
+        - in: formData
+          name: role
+          type: string
+          enum:
+            - Administrator
+            - Consumer
+            - Provider
+          description: 'RBAC Role'
+        - in: formData
+          name: password
+          type: string
+          description: 'Password'
+      produces:
+      - "application/json"
+      responses:
+        200: 
+          description: 'Authenticated user token'
+          schema:
+            $ref: '#/definitions/AuthToken'
+        500:
+          description: "Server Error"
+  /api/auth/login:
+    post:
+      summary: 'Authenticate the User'
+      consumes: 
+      - "application/x-www-form-urlencoded"
+      parameters:
+        - in: formData
+          name: email
+          type: string
+          description: A person's email - unique identifier.
+        - in: formData
+          name: password
+          type: string
+          description: 'Password'
+      produces:
+      - "application/json"
+      responses:
+        200: 
+          description: 'Authenticated user token'
+          schema:
+            $ref: '#/definitions/AuthToken'
+        500:
+          description: "Server Error"
+        404:
+          description: "User is not in the database or password is wrong"
+  /api/auth/me:
+    get:
+      summary: 'Retrive my idenity without the password'
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: 'User object with stripped password'
+          schema:
+            $ref: '#/definitions/User'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        404:
+          description: "User is not in the database"
+  /users:
+    get:
+      summary: "Users: provider and consumer accounts API"
+      description: "Requires Administrator Role. Email as a user identifier is an optional query parameter."
+      produces:
+        - application/json
+      parameters:
+      - name: "email"
+        in: "query"
+        description: "User's email as unique identifier"
+        required: false
+        type: string
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+    post:
+      summary: "Users: provider and consumer accounts API"
+      description: "Requires Administrator Role"
+      consumes:
+        - application/json
+      parameters:
+      - in: 'body'
+        name: 'User'
+        schema:
+          $ref: '#/definitions/User'
+      produces:
+        - application/json
+      responses:
+        200: 
+          description: 'Created User'
+          schema:
+            $ref: '#/definitions/User'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+  /users/{id}:
+    get:
+      summary: "Users: provider and consumer accounts API"
+      description: "Requires Administrator Role"
+      produces:
+        - application/json'
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the User to get"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/User'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+    delete:
+      summary: "Users: provider and consumer accounts API"
+      description: "Requires Administrator Role"
+      produces:
+        - application/json'
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the User to delete"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "User successfully deleted"
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+  /datasets:
+    get:
+      summary: "Dataset API"
+      description: "By default the consumer and provider parameters are stripped. To get the complete object use the optional provider query with user's email or 'ALL' values with a Provider or Administrator Role"
+      produces:
+        - application/json
+      parameters:
+      - name: "provider"
+        in: "query"
+        description: "Optional proverd user's email as unique identifier or 'ALL' value for all providers"
+        type: string
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Dataset'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+    post:
+      summary: "Dataset API"
+      description: "Requires Provider or Administrator Role. The provider creating the dataset is automatically assigned to the dataset as its owner. TBD: POST with a JSON file"
+      consumes:
+        - application/json
+      parameters:
+      - in: 'body'
+        name: 'Dataset'
+        description: "The schema can be encoded into a JSON file which is uploaded to the Server"
+        schema:
+          $ref: '#/definitions/Dataset'
+      produces:
+        - application/json
+      responses:
+        200: 
+          description: 'Created Dataset'
+          schema:
+            $ref: '#/definitions/Dataset'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+  /datasets/{id}:
+    get:
+      summary: "Dataset API"
+      description: "The consumer and provider parameters are stripped."
+      produces:
+        - application/json'
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the Dataset to get"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Dataset'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+    put:
+      summary: "Dataset API"
+      description: "Requires Provider or Administrator Role"
+      produces:
+        - application/json'
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the Dataset to update"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Dataset'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+    delete:
+      summary: "Dataset API"
+      description: "Requires Provider or Administrator Role. Warning: this operation may leave orphanned dataset transactions"
+      produces:
+        - application/json'
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the Dataset to delete"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Dataset successfully deleted"
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+  /transactions:
+    get:
+      summary: "Transaction API"
+      description: "The search with provider query requires Provider authorization, the search with consumer query requires Consumer authorization. Otherwise Administrator authorization is required."
+      parameters:
+      - name: "provider"
+        in: "query"
+        description: "Optional provider user's email as unique identifier. The datasets retrieval query is joined with the transactions query to identify the provider related transactions."
+        required: false
+        type: string
+      - name: "consumer"
+        in: "query"
+        description: "Optional consumers user's email as unique identifier"
+        required: false
+        type: string
+      produces:
+        - application/json
+      responses:
+        200:
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Transaction'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+    post:
+      summary: "Transaction API"
+      description: "Requires Consumer Role. The consumer creating the transaction is automatically assigned to it. The referenced dataset must exist."
+      parameters:
+      - in: 'body'
+        name: 'Transaction'
+        schema:
+          $ref: '#/definitions/Transaction'
+      produces:
+        - application/json
+      responses:
+        200: 
+          description: 'Created Transaction'
+          schema:
+            $ref: '#/definitions/Transaction'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+  /transactions/{id}:
+    get:
+      summary: "Transaction API"
+      description: "Requires Administrator Role."
+      produces:
+        - application/json'
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the Transaction to get"
+        required: true
+        type: "string"
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Transaction'
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+    delete:
+      summary: "Transaction API"
+      description: "Requires Administrator Role."
+      produces:
+        - application/json'
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of the Transaction to delete"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Transaction successfully deleted"
+        500:
+          description: "Server Error"
+        403:
+          description: "Not authenticated"
+        401:
+          description: "Unauthorized"
+        
+definitions:
+  User:
+    type: object
+    properties:
+      id:
+        type: string
+        description: 'Internal'
+        readOnly: true
+      name:
+        type: string
+      email:
+        type: string
+        format: email
+        description: 'Unique user identifier'
+      password:
+        type: string
+        description: 'Salted hash. Stripped in most reponses.'
+      role:
+        type: string
+        enum:
+          - Administrator
+          - Consumer
+          - Provider
+  Dataset:
+    type: object
+    properties:
+      id:
+        type: string
+        description: 'Unique identifier'
+        readOnly: true
+      name:
+        type: string
+      description:
+        type: string
+      price:
+        type: integer
+        description: '100 multiplier'
+      categories:
+        type: array
+        items:
+          type: string
+      format:
+        type: string
+      url:
+        type: string
+      notes:
+        type: string
+      provider:
+        type: object
+        properties:
+          providerId:
+            type: string
+            description: 'User email'
+      consumers:
+        type: array
+        items:
+          type: object
+          properties:
+            consumerId:
+              type: string
+              description: 'User email'
+  Transaction:
+    type: object
+    properties:
+      id:
+        type: string
+        description: 'Unique identifier'
+        readOnly: true
+      dataset:
+        type: string
+        description: 'Dataset unique identifier'
+      consumer:
+        type: object
+        properties:
+          consumerId:
+            type: string
+            description: 'User email'
+  AuthToken:
+    type: object
+    properties:
+      auth:
+        type: boolean
+      token:
+        type: string
+      
