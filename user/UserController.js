@@ -32,6 +32,13 @@ router.post('/', VerifyToken('Administrator'), function (req, res) {
 
 // RETURNS ALL THE USERS IN THE DATABASE
 router.get('/', VerifyToken('Administrator'), function (req, res) {
+    if (req.query.email) {
+        User.findOne({ email: req.query.email }, function (err, user) {
+            if (err) return res.status(500).send("There was a problem finding the user.");
+            if (!user) return res.status(500).send("User not found.");
+            res.status(200).send(user);
+        });
+    }
     User.find({}, function (err, users) {
         if (err) return res.status(500).send("There was a problem finding the users.");
         res.status(200).send(users);
