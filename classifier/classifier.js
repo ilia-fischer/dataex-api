@@ -1,31 +1,40 @@
 //
 // Text Classifier
 //
-// Uses Google Cloud Platform - Natural Language API
-//
-// Ensure NLP API is enabled and an API authentication key file is available and that the
-// environment variable GOOGLE_APPLICATION_CREDENTIALS is set to the path to the file.
-//
-
-// Imports the Google Cloud client library
-//const language = require('@google-cloud/language');
-
-// Instantiates a client
-//const client = new language.LanguageServiceClient();
-
-// The text to analyze
-const text = 'Ensure NLP API is enabled and an API authentication key file is available and that the environment variable GOOGLE_APPLICATION_CREDENTIALS is set to the path to the file.';
-
 var nlp = require('./google_nlp.js');
 
-nlp.get_categories(text)
-     .then((categories) => {
-
-         console.log(categories);
+module.exports = {
+	
+	classify: (text) => {
+		
+        return new Promise((resolve, reject) => {		
+		
+			if (text!=null && text.length>0)
+			{
+    			nlp.get_categories_with_api_key(text)
+	    			.then((categories) => {
+						
+		    			var category_names = [];
+				
+			    		if (categories!=null && categories.length>0)
+                        {
+					    	categories.forEach(function(element) {category_names.push(element.name);});
+					    }
+					
+					    resolve(category_names);
+    				  })
+	    			.catch((err) => {
+		    			//console.error(err); 
+			    		reject(err);
+				    });
+			}
+			else
+			{
+			    resolve([]);	
+			}
+        });					
+	}
+} 
 	 
-      })
-     .catch((err) => {console.error(err); reject(err);});
-
-//console.log('Categories:');
-//categories.forEach(category => { console.log(`Name: ${category.name}, Confidence: ${category.confidence}`); });
+	 
 	
