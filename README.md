@@ -12,6 +12,11 @@ To run install nodejs and MongoDB dependencies. The API expects fintech database
 
 Uses Google Cloud Platform Natural Language API : https://cloud.google.com/nodejs/docs/reference/language/1.1.x/
 
+Note that an API key is used to authenticate to Google Cloud. This key is currently hard coded in google_nlp.js. (You can also use an environment variable 
+GOOGLE_APPLICATION_CREDENTIALS to point to a downloaded credentials file.)
+
+see : https://cloud.google.com/docs/authentication/production
+
 
 The following node npm dependencies need to be installed from the project directory:
 
@@ -21,6 +26,7 @@ npm install jsonwebtoken --save
 npm install bcryptjs --save
 npm install express --save
 npm install mongoose --save
+npm install multer --save
 npm install @google-cloud/language --save
 
 To run the server execute:
