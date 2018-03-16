@@ -10,12 +10,15 @@ app to listen on a specific port.
 
 To run install nodejs and MongoDB dependencies. The API expects fintech database to be pre-created. MongoDB Server is expected locally. See the connection string in the db file.
 
-Uses Google Cloud Platform Natural Language API : https://cloud.google.com/nodejs/docs/reference/language/1.1.x/
+Uses Google Cloud Platform Natural Language API : https://cloud.google.com/nodejs/docs/reference/language/1.1.x/. Access to NLP is via HTTP rather than @gooogle-cloud 
+module because the former allows us to supply an API key otherwise we need to use a credentials file.
 
-Note that an API key is used to authenticate to Google Cloud. This key is currently hard coded in google_nlp.js. (You can also use an environment variable 
+This API key is used to authenticate to Google Cloud. This key is currently hard coded in google_nlp.js. (You can also use an environment variable 
 GOOGLE_APPLICATION_CREDENTIALS to point to a downloaded credentials file.)
 
 see : https://cloud.google.com/docs/authentication/production
+
+Added mocha test infrastructure see: https://semaphoreci.com/community/tutorials/getting-started-with-node-js-and-mocha
 
 
 The following node npm dependencies need to be installed from the project directory:
@@ -27,7 +30,7 @@ npm install bcryptjs --save
 npm install express --save
 npm install mongoose --save
 npm install multer --save
-npm install @google-cloud/language --save
+npm install mocha --save
 
 To run the server execute:
 

@@ -1,5 +1,5 @@
 //
-// Text Classifier
+// Text Classifier using Google Cloud Natural Language API
 //
 var nlp = require('./google_nlp.js');
 
@@ -11,7 +11,7 @@ module.exports = {
 		
 			if (text!=null && text.length>0)
 			{
-    			nlp.get_categories_with_api_key(text)
+    			nlp.get_categories(text)
 	    			.then((categories) => {
 						
 		    			var category_names = [];

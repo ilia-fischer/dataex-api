@@ -3,60 +3,21 @@
 //
 // Uses Google Cloud Platform - Natural Language API
 //
-// Ensure NLP API is enabled and an API authentication key file is available and that the
-// environment variable GOOGLE_APPLICATION_CREDENTIALS is set to the path to the file.
-//
-// Imports the Google Cloud client library
-//
-// See : https://cloud.google.com/natural-language/docs/classifying-text#language-classify-content-file-nodejs
-//
-const language = require('@google-cloud/language');
 
-// API key associated with Google CLoud account
-const api_key = 'AIzaSyCHAExm2iofgvIQG8dS-Ax6Ki1MioIDe24';
+// API key associated with Google Cloud account
+const gcp_api_key = 'AIzaSyCHAExm2iofgvIQG8dS-Ax6Ki1MioIDe24';
 
 module.exports = {
-	
-	// Uses Google NLP to categorise text
-	get_categories: (text) => {
-		
-        return new Promise((resolve, reject) => {		
-		
-		    try
-			{
-              const document = {
-                  content: text,
-                  type: 'PLAIN_TEXT',
-                };
-
-                // Instantiates a client
-                const client = new language.LanguageServiceClient();
-				
-                // Classifies text in the document
-                client
-	                .classifyText({document: document, 'key': api_key})
-	                .then(results => {
-				        resolve(results[0].categories);
-	                  })
-	                .catch(err => {
-	                  //console.error('ERROR:', err);
-					  reject(err);
-	                });  
-            }
-            catch (err)			
-			{
-			    reject(err);
-			}
-        });					
-	},
 	
 	/*
 	curl "https://language.googleapis.com/v1/documents:classifyText?key=${API_KEY}" \
 		-s -X POST -H "Content-Type: application/json" --data-binary @request.json	
 	*/
-
-	// Uses Google NLP to categorise text - api key is supplied on an HTTP request
-	get_categories_with_api_key: (text) => {
+	
+	// Uses Google NLP to categorise text - api key is supplied on an HTTP request (nb: api_key is defaulted if not supplied)
+	get_categories: (text, api_key) => {
+		
+		var _api_key = api_key!==undefined ?  api_key  : gcp_api_key;
 		
         return new Promise((resolve, reject) => {		
 		
@@ -68,7 +29,7 @@ module.exports = {
 			// An object of options to indicate where to post to
 			var post_options = {
 				  host: 'language.googleapis.com',
-				  path: '/v1/documents:classifyText?key=' + api_key,
+				  path: '/v1/documents:classifyText?key=' + _api_key,
 				  method: 'POST',
 				  headers: {
 					  'Cache-Control': 'no-cache',
@@ -76,18 +37,30 @@ module.exports = {
 				  }
 			  };
 	
-			// Set up the request
+			// Set up the requestsx
 			var post_req = http.request(post_options, function(res) {
-				  const body = [];
-				  res.on('data', (chunk) => body.push(chunk));
-				  res.on('end', () => resolve(JSON.parse(body.join('')).categories));      
+				  var response_body = [];
+				  res.on('data', (chunk) => response_body.push(chunk));
+				  res.on('end', () => {
+					  
+					  var jsonResponse = JSON.parse(response_body.join(''));
+					  
+					  if (jsonResponse.error!=undefined && jsonResponse.error.code==400)
+					  {
+						  //console.dir(jsonResponse); 
+						  reject(jsonResponse.error.message);
+					  }
+					  else
+					  {
+						  resolve(jsonResponse.categories);
+					  }
+				  });   
 			  });
 			
 			// post the data
 			post_req.write(post_data);
 			post_req.end();
-	
-			post_req.on('error', (err) => reject(err));
+			post_req.on('error', (err) => {reject(err);});
         });					
 	}
 } 
