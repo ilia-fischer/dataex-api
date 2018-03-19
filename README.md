@@ -186,6 +186,28 @@ Response: [
     }
 ]
 
+Use the following to get a single dataset keyed by datasetId...
+
+curl -X GET \
+  http://localhost:3000/datasets/5aa92a19ea83b53660c63050 \
+  -H 'Cache-Control: no-cache' \
+  -H 'x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTdmMDViZWMwZTU2NDA2NGVmMmMzNSIsInJvbGUiOiJQcm92aWRlciIsImlhdCI6MTUyMTQ2MDM4OCwiZXhwIjoxNTIxNTQ2Nzg4fQ.Cnit8c1beke6fnaDj4aTOAJ3Qo1kjjJ4cneqHAmE_Eo'
+  
+Response: 
+{
+    "categories": [
+        "/Science"
+    ],
+    "_id": "5aa92a19ea83b53660c63050",
+    "name": "Water-balance subregions (WBSs), soil types, and virtual crops for the five land-use time-frames used in the Central Valley Hydrologic Model (CVHM)",
+    "description": "All about Water-balance subregions",
+    "price": 100500,
+    "format": "csv",
+    "url": "https://water.usgs.gov/GIS/dsdl/pp1766_FMP.zip",
+    "notes": "This digital dataset defines the model grid, water-balance subregions (WBSs), soil types, and virtual crops for the five land-use time-frames in the transient...",
+    "__v": 0
+}
+
 The following calls require Provider Authz:
 
 curl -i -X POST \
@@ -249,3 +271,13 @@ Response: [
         "__v": 0
     }
 ]
+
+Use the following to get a download the file associated with a dataset keyed by datasetId...
+
+curl -X GET \
+  http://localhost:3000/download/5aa92a19ea83b53660c63050 \
+  -H 'Cache-Control: no-cache' \
+  -H 'x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTdmMDViZWMwZTU2NDA2NGVmMmMzNSIsInJvbGUiOiJQcm92aWRlciIsImlhdCI6MTUyMTQ2MDM4OCwiZXhwIjoxNTIxNTQ2Nzg4fQ.Cnit8c1beke6fnaDj4aTOAJ3Qo1kjjJ4cneqHAmE_Eo'
+  
+Response: file download
+

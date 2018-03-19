@@ -8,6 +8,9 @@ app.use('/users', UserController);
 var DatasetController = require('./dataset/DatasetController');
 app.use('/datasets', DatasetController);
 
+var DownloadController = require('./download/DownloadController');
+app.use('/download', DownloadController);
+
 var TransactionController = require('./transaction/TransactionController');
 app.use('/transactions', TransactionController);
 
