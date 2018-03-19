@@ -10,10 +10,10 @@ app to listen on a specific port.
 
 To run install nodejs and MongoDB dependencies. The API expects fintech database to be pre-created. MongoDB Server is expected locally. See the connection string in the db file.
 
-Uses Google Cloud Platform Natural Language API : https://cloud.google.com/nodejs/docs/reference/language/1.1.x/. Access to NLP is via HTTP rather than @gooogle-cloud 
+Uses Google Cloud Platform Natural Language API : https://cloud.google.com/nodejs/docs/reference/language/1.1.x/. Access to NLP is via HTTP rather than @gooogle-cloud
 module because the former allows us to supply an API key otherwise we need to use a credentials file.
 
-This API key is used to authenticate to Google Cloud. This key is currently hard coded in google_nlp.js. (You can also use an environment variable 
+This API key is used to authenticate to Google Cloud. This key is currently hard coded in google_nlp.js. (You can also use an environment variable
 GOOGLE_APPLICATION_CREDENTIALS to point to a downloaded credentials file.)
 
 see : https://cloud.google.com/docs/authentication/production
@@ -54,6 +54,14 @@ Docker:
 
 
 To read the API definitions please import and open the dataex-api.yaml file located at the root of the project with the Swagger Editor tool: https://editor.swagger.io/
+
+
+Loading Sample Data:
+This will create Admin, Consumer and Provider users. As well as some sample datasets.
+```
+node ./sampledata/dataload
+```
+
 
 Usage examples:
 
