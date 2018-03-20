@@ -16,7 +16,7 @@ var Classifier = require('../classifier/classifier.js');
 var storage = multer.memoryStorage();
 var upload = multer({storage : storage}).single('');
 
-// CREATES A NEW DATASET FROM UPLOADED FILE (using NLP to generate categories)
+// CREATES A NEW DATASET FROM UPLOADED FILE (using NLP to generate categories on description and notes dataset fields)
 /*
 curl -X POST \
   http://127.0.0.1:3000/datasets/upload \
@@ -38,7 +38,7 @@ router.post('/upload', VerifyToken('Provider'), function (req, res) {
 		    if (err) return res.status(500).send("There was a problem uploading the file.");
 
 			var json = JSON.parse(req.file.buffer);
-			var text = Config.enable_classifier==true ? json.name + ' ' + json.notes : '';
+			var text = Config.enable_classifier==true ? json.description + ' ' + json.notes : '';
 			
 			Classifier.classify(text)
 			 .then((categories) => {
@@ -67,7 +67,7 @@ router.post('/upload', VerifyToken('Provider'), function (req, res) {
     });
 });
 
-// CREATES A NEW DATASET FROM JSON BODY (using NLP to generate categories)
+// CREATES A NEW DATASET FROM JSON BODY (using NLP to generate categories on description and notes dataset fields)
 /*
 curl -X POST \
   http://127.0.0.1:3000/datasets \
@@ -91,7 +91,7 @@ router.post('/', VerifyToken('Provider'), function (req, res) {
         if (err) return res.status(500).send("There was a problem finding the user.");
         if (!user) return res.status(404).send("No user found.");
 		
-		var text = Config.enable_classifier==true ? req.body.name + ' ' + req.body.notes : '';
+		var text = Config.enable_classifier==true ? req.body.description + ' ' + req.body.notes : '';
 		
         Classifier.classify(text)
          .then((categories) => {
