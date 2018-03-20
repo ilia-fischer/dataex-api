@@ -28,6 +28,7 @@ npm install
 npm install jsonwebtoken --save
 npm install bcryptjs --save
 npm install express --save
+npm install cors --save
 npm install mongoose --save
 npm install multer --save
 npm install mocha --save
@@ -253,6 +254,8 @@ Response: {
     "_id": "5aa68e1f6749d20e10c8ac72",
     "__v": 0
 }
+
+NB: The URL may either be a file or a GET API call. The dataset model is not sophisticated enough to define post APIs yet.
 
 curl -i -X GET \
    -H "x-access-token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTY5MjU5Njc0OWQyMGUxMGM4YWM3NiIsInJvbGUiOiJQcm92aWRlciIsImlhdCI6MTUyMDg2NTg4MSwiZXhwIjoxNTIwOTUyMjgxfQ.MGaGEHbVOxxcVgq4BQjNrbE8ZA4qBR7dL9Er4lH7jrA" \
