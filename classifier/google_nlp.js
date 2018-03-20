@@ -47,8 +47,14 @@ module.exports = {
 					  
 					  if (jsonResponse.error!=undefined && jsonResponse.error.code==400)
 					  {
-						  //console.dir(jsonResponse); 
-						  reject(jsonResponse.error.message);
+						  if (jsonResponse.error.status=='INVALID_ARGUMENT' && jsonResponse.error.message.lastIndexOf('Invalid text content: too few tokens', 0)===0)
+						  {
+							resolve([]);
+						  }
+						  else
+					      {
+							reject(jsonResponse.error.message);
+						  }
 					  }
 					  else
 					  {

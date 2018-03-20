@@ -72,18 +72,18 @@ describe("Tests google_nlp.js...", function() {
 			});
 	})
 
-	it ("Test get_categories() - text with few too tokens - should return an error 400", async() => {
+	it ("Test get_categories() - text with too few tokens - should return an empty array", async() => {
 		
 		await nlp.get_categories(text3)
 			
 			.then((categories) => {
 				
-				return Promise.reject('Expected method to reject.');
+				utility.assert(categories!=undefined);
+				utility.assert(categories.length==0);
 				
 			})
 			.catch((err) => {
-				//console.error(err)
-				utility.assert(err!=undefined);				
+				return Promise.reject('Expected method to succeed [error: ' + err + ']');
 			});
 	})
 });
@@ -140,18 +140,18 @@ describe("Tests classifier.js...", function() {
 			});
 	})
 
-	it ("Test classify() - text with few too tokens - should return an error 400", async() => {
+	it ("Test classify() - text with too few tokens - should return an empty array", async() => {
 		
 		await classifier.classify(text3)
 			
 			.then((categories) => {
 				
-				return Promise.reject('Expected method to reject.');
+				utility.assert(categories!=undefined);
+				utility.assert(categories.length==0);
 				
 			})
 			.catch((err) => {
-				//console.error(err)
-				utility.assert(err!=undefined);				
+				return Promise.reject('Expected method to succeed [error: ' + err + ']');
 			});
 	})
 });
