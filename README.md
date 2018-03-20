@@ -280,10 +280,19 @@ Response: [
     }
 ]
 
-Use the following to get a download the file associated with a dataset keyed by datasetId...
+Use the following to get a download the file associated with a dataset keyed by datasetId using a redirectto the URL in the dataset...
 
 curl -X GET \
   http://localhost:3000/download/5aa92a19ea83b53660c63050 \
+  -H 'Cache-Control: no-cache' \
+  -H 'x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTdmMDViZWMwZTU2NDA2NGVmMmMzNSIsInJvbGUiOiJQcm92aWRlciIsImlhdCI6MTUyMTQ2MDM4OCwiZXhwIjoxNTIxNTQ2Nzg4fQ.Cnit8c1beke6fnaDj4aTOAJ3Qo1kjjJ4cneqHAmE_Eo'
+  
+Response: file download
+
+Use the following to get a download the file associated with a dataset keyed by datasetId using a reverse proxy...
+
+curl -X GET \
+  http://localhost:3000/download/proxy/5aa92a19ea83b53660c63050 \
   -H 'Cache-Control: no-cache' \
   -H 'x-access-token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTdmMDViZWMwZTU2NDA2NGVmMmMzNSIsInJvbGUiOiJQcm92aWRlciIsImlhdCI6MTUyMTQ2MDM4OCwiZXhwIjoxNTIxNTQ2Nzg4fQ.Cnit8c1beke6fnaDj4aTOAJ3Qo1kjjJ4cneqHAmE_Eo'
   
