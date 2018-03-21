@@ -14,7 +14,10 @@
     "jsonwebtoken": "^8.2.0",
     "mocha": "^5.0.4",
     "mongoose": "^5.0.9",
-    "multer": "^1.3.0"
+    "multer": "^1.3.0",
+    "fabric-ca-client": "^1.0.2",
+    "fabric-client": "^1.0.2",
+    "grpc": "^1.6.0"
   },
   "devDependencies": {
     "request": "^2.85.0",
