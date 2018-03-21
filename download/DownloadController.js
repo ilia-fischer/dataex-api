@@ -4,6 +4,8 @@ var router = express.Router();
 var Dataset = require('../dataset/Dataset');
 var Download = require('./Download');
 
+var User = require('../user/User');
+
 var VerifyToken = require('../auth/VerifyToken');
 
 // For file downloads...
@@ -11,8 +13,8 @@ var {URL} = require('url');
 var http = require('http');
 var https = require('https');
 
-// Checks JSON for userId
-function checkUserIsConsumer(consumers, userId, user_role)
+// Checks consumer is valid for this dataset
+function checkIsValidConsumer(consumers, userId, user_role)
 {
 	// Permissioning only applies where user is a Consumer
 	if (user_role==='Consumer')
@@ -27,6 +29,18 @@ function checkUserIsConsumer(consumers, userId, user_role)
     return true;	
 }
 
+// Checks provider is valid for this dataset
+function checkIsValidProvider(providerId, userId, user_role)
+{
+	// Permissioning only applies where user is a Provider
+	if (user_role==='Provider')
+	{
+		return (providerId===userId)
+	}
+	
+    return true;	
+}
+
 //
 // This module implements the download API either as a redirect (default) or as a reverse proxy. In both
 // cases the download request event is recorded in MongoDB.
@@ -36,15 +50,20 @@ function checkUserIsConsumer(consumers, userId, user_role)
 //
 router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 	
-    Dataset.findById(req.params.id, { provider: 0, consumers: 0 }, function (err, dataset) {
+	User.findById(req.userId, { password: 0 }, function (err, user) {
+        if (err) return res.status(500).send("There was a problem finding the user.");
+        if (!user) return res.status(404).send("No user found.");
+	
+		Dataset.findById(req.params.id, { url: 1, consumers : 1, provider: 1}, function (err, dataset) {
 		
-		if (err) return res.status(500).send("There was a problem finding the dataset.");
-        if (!dataset) return res.status(404).send("No dataset found.");
-        if (!checkUserIsConsumer(dataset.consumers, req.userId)) return res.status(403).send("User is not permissioned to use this dataset.");
+			if (err) return res.status(500).send("There was a problem finding the dataset.");
+			if (!dataset) return res.status(404).send("No dataset found.");
+			if (!checkIsValidConsumer(dataset.consumers, user.email, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
+			if (!checkIsValidProvider(dataset.provider.providerId, user.email, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
 		
-		Download.create({
+			Download.create({
 						timestamp: new Date().toISOString(),
-						userId: req.userId,
+						userId: user.email,
 						role: req.user_role,
 						datasetId: req.params.id,
 						url: dataset.url
@@ -72,22 +91,28 @@ router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 							res.status(404).send("Unsupported protocol.");
 						}
 					})		
-    });
+		});
+    });	
 });
 
 // GETS A SINGLE DATASET FROM THE DATABASE AND DOWNLOADS THE ASSOCIATED FILE VIA A REDIRECT.
 //
 router.get('/:id', VerifyToken('Everyone'), function (req, res) {
 	
-    Dataset.findById(req.params.id, { url: 1, consumers : 1}, function (err, dataset) {
+	User.findById(req.userId, { password: 0 }, function (err, user) {
+        if (err) return res.status(500).send("There was a problem finding the user.");
+        if (!user) return res.status(404).send("No user found.");
+	
+		Dataset.findById(req.params.id, { url: 1, consumers : 1, provider: 1}, function (err, dataset) {
 		
-		if (err) return res.status(500).send("There was a problem finding the dataset.");
-        if (!dataset) return res.status(404).send("No dataset found.");
-        if (!checkUserIsConsumer(dataset.consumers, req.userId, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
+			if (err) return res.status(500).send("There was a problem finding the dataset.");
+			if (!dataset) return res.status(404).send("No dataset found.");
+			if (!checkIsValidConsumer(dataset.consumers, user.email, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
+			if (!checkIsValidProvider(dataset.provider.providerId, user.email, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
 		
-		Download.create({
+			Download.create({
 						timestamp: new Date().toISOString(),
-						userId: req.userId,
+						userId: user.email,
 						role: req.user_role,
 						datasetId: req.params.id,
 						url: dataset.url
@@ -98,6 +123,7 @@ router.get('/:id', VerifyToken('Everyone'), function (req, res) {
 						// determine if reverse proxy or redirect...
 						res.redirect(dataset.url);
 					})		
+		});
     });
 });
 
