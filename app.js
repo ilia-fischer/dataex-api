@@ -21,4 +21,7 @@ app.use('/transactions', TransactionController);
 var AuthController = require('./auth/AuthController');
 app.use('/api/auth', AuthController);
 
+var BlockChainController = require('./blockchain/BlockChainController');
+app.use('/api/blockchain', BlockChainController);
+
 module.exports = app;
