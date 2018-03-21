@@ -11,6 +11,22 @@ var {URL} = require('url');
 var http = require('http');
 var https = require('https');
 
+// Checks JSON for userId
+function checkUserIsConsumer(consumers, userId, user_role)
+{
+	// Permissioning only applies where user is a Consumer
+	if (user_role==='Consumer')
+	{
+		for (var i=0; i<consumers.length; ++i) {
+			if (consumers[0].consumerId === userId) return true;
+		}	
+		
+		return false;	
+	}
+	
+    return true;	
+}
+
 //
 // This module implements the download API either as a redirect (default) or as a reverse proxy. In both
 // cases the download request event is recorded in MongoDB.
@@ -24,10 +40,12 @@ router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 		
 		if (err) return res.status(500).send("There was a problem finding the dataset.");
         if (!dataset) return res.status(404).send("No dataset found.");
+        if (!checkUserIsConsumer(dataset.consumers, req.userId)) return res.status(403).send("User is not permissioned to use this dataset.");
 		
 		Download.create({
 						timestamp: new Date().toISOString(),
 						userId: req.userId,
+						role: req.user_role,
 						datasetId: req.params.id,
 						url: dataset.url
 					},
@@ -61,14 +79,16 @@ router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 //
 router.get('/:id', VerifyToken('Everyone'), function (req, res) {
 	
-    Dataset.findById(req.params.id, { provider: 0, consumers: 0 }, function (err, dataset) {
+    Dataset.findById(req.params.id, { url: 1, consumers : 1}, function (err, dataset) {
 		
 		if (err) return res.status(500).send("There was a problem finding the dataset.");
         if (!dataset) return res.status(404).send("No dataset found.");
+        if (!checkUserIsConsumer(dataset.consumers, req.userId, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
 		
 		Download.create({
 						timestamp: new Date().toISOString(),
 						userId: req.userId,
+						role: req.user_role,
 						datasetId: req.params.id,
 						url: dataset.url
 					},
@@ -80,6 +100,5 @@ router.get('/:id', VerifyToken('Everyone'), function (req, res) {
 					})		
     });
 });
-
 
 module.exports = router;
