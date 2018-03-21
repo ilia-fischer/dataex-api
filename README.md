@@ -74,7 +74,6 @@ curl -i -X POST \
    -d "email=alexa@amazon.com" \
    -d "role=Administrator" \
    -d "password=changeme" \
-   -d "name=weather" \
  'http://localhost:3000/api/auth/register'
 
 
@@ -255,7 +254,7 @@ Response: {
     "__v": 0
 }
 
-NB: The URL may either be a file or a GET API call. The dataset model is not sophisticated enough to define post APIs yet.
+NB: The URL may either be a file or a GET API call. The dataset model is not sophisticated enough to define post APIs for the URL yet.
 
 curl -i -X GET \
    -H "x-access-token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhYTY5MjU5Njc0OWQyMGUxMGM4YWM3NiIsInJvbGUiOiJQcm92aWRlciIsImlhdCI6MTUyMDg2NTg4MSwiZXhwIjoxNTIwOTUyMjgxfQ.MGaGEHbVOxxcVgq4BQjNrbE8ZA4qBR7dL9Er4lH7jrA" \
@@ -283,7 +282,8 @@ Response: [
     }
 ]
 
-Use the following to get a download the file associated with a dataset keyed by datasetId using a redirectto the URL in the dataset...
+Use the following to get a download the file associated with a dataset keyed by datasetId using a redirect to the URL in the dataset. (NB If the access token is associated with a consumer then that consumer 
+must be associated with the dataset. Providers and Administrators are not restricted in this way.)...
 
 curl -X GET \
   http://localhost:3000/download/5aa92a19ea83b53660c63050 \
