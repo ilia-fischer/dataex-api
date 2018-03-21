@@ -13,6 +13,7 @@ function verifyToken(role){
                 return res.status(401).send({ auth: false, message: 'Failed to authorize the request.' });
             // if everything good, save to request for use in other routes
             req.userId = decoded.id;
+			req.user_role = decoded.role;
             next();
         });
     };
