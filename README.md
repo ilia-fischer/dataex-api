@@ -28,9 +28,10 @@ npm install
 npm install jsonwebtoken --save
 npm install bcryptjs --save
 npm install express --save
+npm install multer --save
 npm install cors --save
 npm install mongoose --save
-npm install multer --save
+npm install fabric-client --save
 npm install mocha --save
 
 To run the server execute:
