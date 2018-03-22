@@ -3,3 +3,5 @@ node_modules
 npm-debug.log
 .serverless
 variables.env
+blockchain/README.html
+blockchain/chaincode/dataex/dataex

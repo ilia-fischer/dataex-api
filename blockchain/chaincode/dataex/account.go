@@ -7,8 +7,8 @@ import (
 )
 
 type Account struct {
-	Balance int    `json:"balance"`
-	Owner   string `json:"owner"`
+	Balance float64 `json:"balance"`
+	Owner   string  `json:"owner"`
 }
 
 func initializeAccount(stub shim.ChaincodeStubInterface, accountId string) error {
@@ -25,19 +25,19 @@ func initializeAccount(stub shim.ChaincodeStubInterface, accountId string) error
 	}
 }
 
-func depositAccount(stub shim.ChaincodeStubInterface, accountId string, amount int) error {
+func depositAccount(stub shim.ChaincodeStubInterface, accountId string, amount float64) error {
 
 	initializeAccount(stub, accountId)
 	key := "account" + accountId
 	balance, _ := stub.GetState(key)
-	pBalance, err := strconv.Atoi(string(balance))
+	pBalance, err := strconv.ParseFloat(string(balance), 64)
 	if err != nil {
 		logger.Debugf(err.Error())
 		pBalance = 0
 	}
 	pBalance += amount
-	logger.Debugf("previous balance " + string(balance) + " new balance " + strconv.Itoa(pBalance))
-	return stub.PutState(key, []byte(strconv.Itoa(pBalance)))
+	logger.Debugf("previous balance " + string(balance) + " new balance " + strconv.FormatFloat(pBalance, 'f', 2, 64))
+	return stub.PutState(key, []byte(strconv.FormatFloat(pBalance, 'f', 2, 64)))
 }
 
 /*

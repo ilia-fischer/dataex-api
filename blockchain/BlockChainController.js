@@ -11,6 +11,7 @@ var fabric = require('./BlockChainClient')
 
 router.get('/', fabric.overview);
 router.post('/dataset', fabric.addDataSet);
+router.post('/accessdataset', fabric.accessDataSet);
 router.post('/account', fabric.queryAccount);
 router.post('/querydataset', fabric.queryDataSet);
 

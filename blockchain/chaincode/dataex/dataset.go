@@ -10,22 +10,25 @@ import (
 )
 
 type DataSet struct {
-	Owner       string       `json:"owner"`
-	Url         string       `json:"url"`
-	Entitlement *Entitlement `json:"entitlement`
-	CommPolicy  *CommPolicy
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Provider    *User   `json:"provider"`
+	Url         string  `json:"url"`
+	Price       float64 `json:price`
+}
+
+type User struct {
+	ProviderId string `json:"providerid"`
 }
 
 func addDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var logger = shim.NewLogger("dataex")
 
 	fmt.Println("adding dataset")
 	if len(args) != 1 {
 		return shim.Error("expect json payload")
 	}
 	dataset := &DataSet{
-		Entitlement: &Entitlement{},
-		CommPolicy:  &CommPolicy{},
+		Provider: &User{},
 	}
 
 	err := json.Unmarshal([]byte(args[0]), dataset)
@@ -40,7 +43,6 @@ func addDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	addEntitlement(stub, args)
 
 	value, gerr := stub.GetState(dataset.Url)
 	if gerr != nil {
@@ -49,9 +51,9 @@ func addDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	logger.Debugf("value from state store")
 	logger.Debugf(string(value))
 
-	aerr := initializeAccount(stub, dataset.Owner)
+	aerr := initializeAccount(stub, dataset.Provider.ProviderId)
 	if aerr != nil {
-		logger.Debugf("failed initializing account " + dataset.Owner)
+		logger.Debugf("failed initializing account " + dataset.Provider.ProviderId)
 		return shim.Error(aerr.Error())
 	}
 
@@ -59,9 +61,7 @@ func addDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 }
 
 func deleteDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println("removing dataset")
-
-	removeEntitlement(stub, args)
+	fmt.Println("removing dataset - not implemented")
 	return shim.Success(nil)
 }
 
@@ -79,8 +79,7 @@ func accessDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response 
 
 	logger.Debugf(string(state))
 	dataset := &DataSet{
-		Entitlement: &Entitlement{},
-		CommPolicy:  &CommPolicy{},
+		Provider: &User{},
 	}
 	err := json.Unmarshal(state, dataset)
 	if err != nil {
@@ -89,18 +88,18 @@ func accessDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response 
 	}
 
 	//deposit to owner account
-	logger.Debugf("deposit to " + dataset.Owner)
-	err = depositAccount(stub, dataset.Owner, dataset.CommPolicy.Price)
+	logger.Debugf("deposit to " + dataset.Provider.ProviderId)
+	err = depositAccount(stub, dataset.Provider.ProviderId, dataset.Price)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 	//debit consumer account
 	logger.Debugf("debit " + args[1])
-	err = depositAccount(stub, args[1], dataset.CommPolicy.Price*(-1))
+	err = depositAccount(stub, args[1], dataset.Price*(-1))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
-	return shim.Success([]byte("successfully accessed dataset: " + args[0] + " deposited account: " + dataset.Owner + " amount: " + strconv.Itoa(dataset.CommPolicy.Price)))
+	return shim.Success([]byte("successfully accessed dataset: " + args[0] + " deposited account: " + dataset.Provider.ProviderId + " amount: " + strconv.FormatFloat(dataset.Price, 'f', 2, 64)))
 }
 
 func getDataSetHistory(stub shim.ChaincodeStubInterface, args []string) pb.Response {
