@@ -11,6 +11,7 @@ var Config = require('../config');
 var VerifyToken = require('../auth/VerifyToken');
 var User = require('../user/User');
 var Classifier = require('../classifier/classifier.js');
+var bc = require('../blockchain/BlockChainHttpClient.js');
 
 // For file upload (file is stored in memory only)...
 var storage = multer.memoryStorage();
@@ -42,26 +43,34 @@ router.post('/upload', VerifyToken('Provider'), function (req, res) {
 			
 			Classifier.classify(text)
 			 .then((categories) => {
+				 
+				const json_request = {  name: json.name,
+										description: json.description,
+										price: json.price,
+										categories: categories,
+										format: json.format,
+										url: json.url,
+										notes: json.notes,
+										provider: { providerId: user.email },
+										consumers: json.consumers};
+				 
+				bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
+				
+				.then((result) => {
 
-				Dataset.create({
-						name: json.name,
-						description: json.description,
-						price: json.price,
-						categories: categories,
-						format: json.format,
-						url: json.url,
-						notes: json.notes,
-						provider: { providerId: user.email },
-						consumers: json.consumers
-					},
-					function (err, dataset) {
-						if (err) return res.status(500).send("There was a problem adding the information to the database.");
-						res.status(200).send(dataset);
-					});			 
+					//console.dir(result);
+					
+					Dataset.create(json_request, function (err, dataset) {
+							if (err) return res.status(500).send("There was a problem adding the information to the database.");
+							res.status(200).send(dataset);
+						});			 
+				})
+				.catch((err) => {
+					return res.status(500).send("There was a problem adding the information to the blockchain.");
+				});			 
 			  })    
 			 .catch((err) => {
-					if (err) return res.status(500).send("There was a problem classifying the text.");
-					res.status(200).send(dataset);
+					res.status(500).send("There was a problem classifying the text.");
 			  });
 	    });
     });
@@ -95,26 +104,37 @@ router.post('/', VerifyToken('Provider'), function (req, res) {
 		
         Classifier.classify(text)
          .then((categories) => {
+			 
+			const json_request = {
+									name: req.body.name,
+									description: req.body.description,
+									price: req.body.price,
+									categories: categories,
+									format: req.body.format,
+									url: req.body.url,
+									notes: req.body.notes,
+									provider: { providerId: user.email },
+									consumers: req.body.consumers
+								};
+			 
+			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
+			
+			.then((result) => {
 
-			Dataset.create({
-					name: req.body.name,
-					description: req.body.description,
-					price: req.body.price,
-					categories: categories,
-					format: req.body.format,
-					url: req.body.url,
-					notes: req.body.notes,
-					provider: { providerId: user.email },
-					consumers: req.body.consumers
-				},
-				function (err, dataset) {
-					if (err) return res.status(500).send("There was a problem adding the information to the database.");
-					res.status(200).send(dataset);
-				});			 
+				//console.dir(result);
+				
+				Dataset.create(json_request, function (err, dataset) {
+						if (err) return res.status(500).send("There was a problem adding the information to the database.");
+						res.status(200).send(dataset);
+					});			 
+			})
+			.catch((err) => {
+				return res.status(500).send("There was a problem adding the information to the blockchain.");
+			});			 
+
           })    
          .catch((err) => {
-		        if (err) return res.status(500).send("There was a problem classifying the text.");
-				res.status(200).send(dataset);
+		        return res.status(500).send("There was a problem classifying the text.");
 		  });
     });
 });
