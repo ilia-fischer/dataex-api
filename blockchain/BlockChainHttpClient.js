@@ -28,7 +28,10 @@ exports.blockchainApiRequest = function(host, port, querypath, request_body) {
 			  // on every content chunk, push it to the data array
 			  res.on('data', (chunk) => body.push(chunk));
 			  // we are done, resolve promise with those joined chunks
-			  res.on('end', () => resolve(body.join('')));      
+			  res.on('end', () => {
+				//console.dir(body.join(''));
+				resolve(body.join(''));
+			  });      
 		  });
 		
 		// post the data

@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 var Dataset = require('../dataset/Dataset');
-var Download = require('./Download');
+var DataAccess = require('./DataAccess');
 
 var Config = require('../config');
 var bc = require('../blockchain/BlockChainHttpClient.js');
@@ -70,9 +70,9 @@ router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 				
 				.then((result) => {
 
-					console.dir(result);
+					//console.dir(result);
 					
-					Download.create({
+					DataAccess.create({
 							timestamp: new Date().toISOString(),
 							userId: user.email,
 							role: req.user_role,
@@ -131,9 +131,9 @@ router.get('/:id', VerifyToken('Everyone'), function (req, res) {
 				
 				.then((result) => {
 
-					console.dir(result);
+					//console.dir(result);
 					
-					Download.create({
+					DataAccess.create({
 						timestamp: new Date().toISOString(),
 						userId: user.email,
 						role: req.user_role,
