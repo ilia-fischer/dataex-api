@@ -53,21 +53,25 @@ router.post('/upload', VerifyToken('Provider'), function (req, res) {
 										notes: json.notes,
 										provider: { providerId: user.email },
 										consumers: json.consumers};
-				 
-				bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
-				
-				.then((result) => {
+										
+				Dataset.create(json_request, function (err, dataset) {
+						
+						if (err) return res.status(500).send("There was a problem adding the information to the database.");
+						
+						json_request['uuid'] = dataset._id;
+						
+						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
+						
+						.then((result) => {
 
-					//console.dir(result);
-					
-					Dataset.create(json_request, function (err, dataset) {
-							if (err) return res.status(500).send("There was a problem adding the information to the database.");
+							//console.dir(result);
 							res.status(200).send(dataset);
+							
+						})
+						.catch((err) => {
+							return res.status(500).send("There was a problem adding the information to the blockchain.");
 						});			 
-				})
-				.catch((err) => {
-					return res.status(500).send("There was a problem adding the information to the blockchain.");
-				});			 
+					});			 
 			  })    
 			 .catch((err) => {
 					res.status(500).send("There was a problem classifying the text.");
@@ -116,23 +120,22 @@ router.post('/', VerifyToken('Provider'), function (req, res) {
 									provider: { providerId: user.email },
 									consumers: req.body.consumers
 								};
-			 
-			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
-			
-			.then((result) => {
 
-				//console.dir(result);
-				
 				Dataset.create(json_request, function (err, dataset) {
+						
 						if (err) return res.status(500).send("There was a problem adding the information to the database.");
-						res.status(200).send(dataset);
-					});			 
-			})
-			.catch((err) => {
-				return res.status(500).send("There was a problem adding the information to the blockchain.");
-			});			 
-
-          })    
+						
+						json_request['uuid'] = dataset._id;
+						
+						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
+						.then((result) => {
+							res.status(200).send(json_request);
+						})
+						.catch((err) => {
+							return res.status(500).send("There was a problem adding the information to the blockchain.");
+						});			 
+				});			 
+		    })
          .catch((err) => {
 		        return res.status(500).send("There was a problem classifying the text.");
 		  });
