@@ -66,7 +66,7 @@ router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 			if (!checkIsValidConsumer(dataset.consumers, user.email, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
 			if (!checkIsValidProvider(dataset.provider.providerId, user.email, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
 			
-			const json_request = {"consumer": user.email, "url": dataset.url};
+			const json_request = {"consumer": user.email, "uuid": dataset._id.toString()};
 			
 			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/accessdataset', json_request)
 				
@@ -127,7 +127,7 @@ router.get('/redirect/:id', VerifyToken('Everyone'), function (req, res) {
 			if (!checkIsValidConsumer(dataset.consumers, user.email, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
 			if (!checkIsValidProvider(dataset.provider.providerId, user.email, req.user_role)) return res.status(403).send("User is not permissioned to use this dataset.");
 			
-			const json_request = {"consumer": user.email, "url": dataset.url};
+			const json_request = {"consumer": user.email, "uuid": dataset._id.toString()};
 			
 			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/accessdataset', json_request)
 				
@@ -164,17 +164,29 @@ router.get('/:id', VerifyToken('Consumer'), function (req, res) {
         Dataset.findById(req.params.id, function (err, dataset) {
             if (err) return res.status(500).send("There was a problem finding the dataset.");
             if (!dataset) return res.status(404).send("No dataset found.");
+			
+			const json_request = {"consumer": user.email, "uuid": dataset._id.toString()};
+			
+			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/accessdataset', json_request)
+				
+				.then((result) => {
 
-            Transaction.create({
-                consumer: {
-                    consumerId: user.email
-                },
-                datasetId: dataset.id
-            },
-                function (err, transaction) {
-                    if (err) return res.status(500).send("There was a problem adding the information to the database.");
-                    res.status(200).send(transaction);
-                });
+					//console.dir(result);
+					
+					Transaction.create({
+						consumer: {
+							consumerId: user.email
+						},
+						datasetId: dataset.id
+					},
+					function (err, transaction) {
+						if (err) return res.status(500).send("There was a problem adding the information to the database.");
+						res.status(200).send(transaction);
+					});
+				})
+				.catch((err) => {
+					return res.status(500).send("There was a problem adding the information to the blockchain.");
+				});			 			
         });
     });
 });
