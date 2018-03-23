@@ -4,6 +4,8 @@ var router = express.Router();
 var Dataset = require('../dataset/Dataset');
 var DataAccess = require('./DataAccess');
 
+var Transaction = require('../transaction/Transaction');
+
 var Config = require('../config');
 var bc = require('../blockchain/BlockChainHttpClient.js');
 
@@ -112,7 +114,7 @@ router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 
 // GETS A SINGLE DATASET FROM THE DATABASE AND DOWNLOADS THE ASSOCIATED FILE VIA A REDIRECT.
 //
-router.get('/:id', VerifyToken('Everyone'), function (req, res) {
+router.get('/redirect/:id', VerifyToken('Everyone'), function (req, res) {
 	
 	User.findById(req.userId, { password: 0 }, function (err, user) {
         if (err) return res.status(500).send("There was a problem finding the user.");
@@ -149,6 +151,31 @@ router.get('/:id', VerifyToken('Everyone'), function (req, res) {
 					return res.status(500).send("There was a problem adding the information to the blockchain.");
 				});			 			
 		});
+    });
+});
+
+// CREATES A NEW TRANSACTION
+router.get('/:id', VerifyToken('Consumer'), function (req, res) {
+
+    User.findById(req.userId, function (err, user) {
+        if (err) return res.status(500).send("There was a problem finding the user.");
+        if (!user) return res.status(404).send("No user found.");
+
+        Dataset.findById(req.params.id, function (err, dataset) {
+            if (err) return res.status(500).send("There was a problem finding the dataset.");
+            if (!dataset) return res.status(404).send("No dataset found.");
+
+            Transaction.create({
+                consumer: {
+                    consumerId: user.email
+                },
+                datasetId: dataset.id
+            },
+                function (err, transaction) {
+                    if (err) return res.status(500).send("There was a problem adding the information to the database.");
+                    res.status(200).send(transaction);
+                });
+        });
     });
 });
 
