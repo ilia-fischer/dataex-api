@@ -58,14 +58,15 @@ router.post('/upload', VerifyToken('Provider'), function (req, res) {
 						
 						if (err) return res.status(500).send("There was a problem adding the information to the database.");
 						
-						json_request['uuid'] = dataset._id;
+						json_request['uuid'] = dataset._id.toString();
 						
 						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
 						
 						.then((result) => {
 
 							//console.dir(result);
-							res.status(200).send(dataset);
+							//console.dir(json_request);
+							res.status(200).send(json_request);
 							
 						})
 						.catch((err) => {
@@ -125,7 +126,7 @@ router.post('/', VerifyToken('Provider'), function (req, res) {
 						
 						if (err) return res.status(500).send("There was a problem adding the information to the database.");
 						
-						json_request['uuid'] = dataset._id;
+						json_request['uuid'] = dataset._id.toString();
 						
 						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
 						.then((result) => {
