@@ -60,7 +60,7 @@ router.post('/upload', VerifyToken('Provider'), function (req, res) {
 						
 						json_request['uuid'] = dataset._id.toString();
 						
-						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
+						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/dataset', json_request)
 						
 						.then((result) => {
 
@@ -128,7 +128,7 @@ router.post('/', VerifyToken('Provider'), function (req, res) {
 						
 						json_request['uuid'] = dataset._id.toString();
 						
-						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/dataset', json_request)
+						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/dataset', json_request)
 						.then((result) => {
 							res.status(200).send(json_request);
 						})

@@ -68,7 +68,7 @@ router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 			
 			const json_request = {"consumer": user.email, "uuid": dataset._id.toString()};
 			
-			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/accessdataset', json_request)
+			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/accessdataset', json_request)
 				
 				.then((result) => {
 
@@ -129,7 +129,7 @@ router.get('/redirect/:id', VerifyToken('Everyone'), function (req, res) {
 			
 			const json_request = {"consumer": user.email, "uuid": dataset._id.toString()};
 			
-			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/accessdataset', json_request)
+			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/accessdataset', json_request)
 				
 				.then((result) => {
 
@@ -167,7 +167,7 @@ router.get('/:id', VerifyToken('Consumer'), function (req, res) {
 			
 			const json_request = {"consumer": user.email, "uuid": dataset._id.toString()};
 			
-			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/accessdataset', json_request)
+			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/accessdataset', json_request)
 				
 				.then((result) => {
 
