@@ -10,6 +10,7 @@ import (
 )
 
 type DataSet struct {
+	UUID        string  `json:"uuid"`
 	Name        string  `json:"name"`
 	Description string  `json:"description"`
 	Provider    *User   `json:"provider"`
@@ -39,7 +40,7 @@ func addDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	logger.Debugf(args[0])
 	logger.Debugf(string(jsonString))
-	err = stub.PutState(dataset.Url, jsonString)
+	err = stub.PutState(dataset.UUID, []byte(args[0]))
 	if err != nil {
 		return shim.Error(err.Error())
 	}
@@ -89,10 +90,16 @@ func accessDataSet(stub shim.ChaincodeStubInterface, args []string) pb.Response 
 
 	//deposit to owner account
 	logger.Debugf("deposit to " + dataset.Provider.ProviderId)
-	err = depositAccount(stub, dataset.Provider.ProviderId, dataset.Price)
+	err = depositAccount(stub, dataset.Provider.ProviderId, dataset.Price*0.9)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
+
+	err = depositAccount(stub, "TRDX", dataset.Price*0.1)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
 	//debit consumer account
 	logger.Debugf("debit " + args[1])
 	err = depositAccount(stub, args[1], dataset.Price*(-1))

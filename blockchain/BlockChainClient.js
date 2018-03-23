@@ -42,8 +42,8 @@ exports.addDataSet = function(req, resp) {
 }
 
 exports.accessDataSet = function(req, resp) {
-	console.log("accessing dataset: " + req.body.url);
-	var response = invoke.invoke("accessDataSet", [req.body.url, req.body.consumer]);
+	console.log("accessing dataset: " + req.body.uuid);
+	var response = invoke.invoke("accessDataSet", [req.body.uuid, req.body.consumer]);
 	response.then((results) => {
 		console.log('Send transaction promise and event listener promise have completed');
 		// check the results in the order the promises were added to the promise all list
