@@ -23,7 +23,7 @@ function checkIsValidConsumer(consumers, userId, user_role) {
     // Permissioning only applies where user is a Consumer
     if (user_role === 'Consumer') {
         for (var i = 0; i < consumers.length; ++i) {
-            if (consumers[0].consumerId === userId) return true;
+            if (consumers[i].consumerId === userId) return true;
         }
 
         return false;
