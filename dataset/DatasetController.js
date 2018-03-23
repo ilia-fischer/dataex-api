@@ -200,24 +200,30 @@ router.put('/:id', VerifyToken('Provider'), function (req, res) {
 });
 
 // Allows EVERYONE to BUY a dataset. Note ... not using PUT as above since its locked to provider.
+// NOTE: consumerId = EMAIL (not ID)
 router.post('/buy/:id', VerifyToken('Everyone'), function (req, res) {
-    Dataset.findById(req.params.id, { provider: 0 }, function (err, dataset) {
-        if (err) return res.status(500).send("There was a problem finding the dataset.");
-        if (!dataset) return res.status(404).send("No dataset found.");
+    User.findById(req.userId, function (err, user) {
+		if (err) return res.status(500).send("There was a problem finding the user.");
+		if (!user) return res.status(404).send("No user found.");
 
-        const userId = req.userId;
-        dataset.consumers = dataset.consumers || [];
-        let found = dataset.consumers.find(c=>c.consumerId === userId);
-        if(found){
-            return res.status(400).send("Dataset already purchased!");
-        }
-        dataset.consumers.push({
-            consumerId: userId
-        });
+		Dataset.findById(req.params.id, { provider: 0 }, function (err, dataset) {
+            if (err) return res.status(500).send("There was a problem finding the dataset.");
+            if (!dataset) return res.status(404).send("No dataset found.");
 
-        Dataset.findByIdAndUpdate(req.params.id, dataset, { new: true }, function (err, dataset) {
-            if (err) return res.status(500).send("There was a problem updating the dataset.");
-            res.status(200).send(dataset);
+            const userId = user.email;
+            dataset.consumers = dataset.consumers || [];
+            let found = dataset.consumers.find(c=>c.consumerId === userId);
+            if(found){
+                return res.status(400).send("Dataset already purchased!");
+            }
+            dataset.consumers.push({
+                consumerId: userId
+            });
+
+            Dataset.findByIdAndUpdate(req.params.id, dataset, { new: true }, function (err, dataset) {
+                if (err) return res.status(500).send("There was a problem updating the dataset.");
+                res.status(200).send(dataset);
+            });
         });
     });
 });
