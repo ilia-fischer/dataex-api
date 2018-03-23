@@ -28,22 +28,22 @@ curl -X POST \
   -F '=@C:\finetech\dataex-api\files\water_balance_request.json'
 */
 router.post('/upload', VerifyToken('Provider'), function (req, res) {
-	
+
     User.findById(req.userId, function (err, user) {
-		
+
 		if (err) return res.status(500).send("There was a problem finding the user.");
 		if (!user) return res.status(404).send("No user found.");
-	
+
 		upload(req, res, function(err) {
-			
+
 		    if (err) return res.status(500).send("There was a problem uploading the file.");
 
 			var json = JSON.parse(req.file.buffer);
 			var text = Config.enable_classifier==true ? json.description + ' ' + json.notes : '';
-			
+
 			Classifier.classify(text)
 			 .then((categories) => {
-				 
+
 				const json_request = {  name: json.name,
 										description: json.description,
 										price: json.price,
@@ -53,27 +53,27 @@ router.post('/upload', VerifyToken('Provider'), function (req, res) {
 										notes: json.notes,
 										provider: { providerId: user.email },
 										consumers: json.consumers};
-										
+
 				Dataset.create(json_request, function (err, dataset) {
-						
+
 						if (err) return res.status(500).send("There was a problem adding the information to the database.");
-						
+
 						json_request['uuid'] = dataset._id.toString();
-						
+
 						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/dataset', json_request)
-						
+
 						.then((result) => {
 
 							//console.dir(result);
 							//console.dir(json_request);
 							res.status(200).send(json_request);
-							
+
 						})
 						.catch((err) => {
 							return res.status(500).send("There was a problem adding the information to the blockchain.");
-						});			 
-					});			 
-			  })    
+						});
+					});
+			  })
 			 .catch((err) => {
 					res.status(500).send("There was a problem classifying the text.");
 			  });
@@ -99,17 +99,17 @@ curl -X POST \
 }'
 */
 router.post('/', VerifyToken('Provider'), function (req, res) {
-	
+
     User.findById(req.userId, function (err, user) {
-		
+
         if (err) return res.status(500).send("There was a problem finding the user.");
         if (!user) return res.status(404).send("No user found.");
-		
+
 		var text = Config.enable_classifier==true ? req.body.description + ' ' + req.body.notes : '';
-		
+
         Classifier.classify(text)
          .then((categories) => {
-			 
+
 			const json_request = {
 									name: req.body.name,
 									description: req.body.description,
@@ -123,19 +123,19 @@ router.post('/', VerifyToken('Provider'), function (req, res) {
 								};
 
 				Dataset.create(json_request, function (err, dataset) {
-						
+
 						if (err) return res.status(500).send("There was a problem adding the information to the database.");
-						
+
 						json_request['uuid'] = dataset._id.toString();
-						
+
 						bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/dataset', json_request)
 						.then((result) => {
 							res.status(200).send(json_request);
 						})
 						.catch((err) => {
 							return res.status(500).send("There was a problem adding the information to the blockchain.");
-						});			 
-				});			 
+						});
+				});
 		    })
          .catch((err) => {
 		        return res.status(500).send("There was a problem classifying the text.");
@@ -167,7 +167,7 @@ router.get('/', isProviderQuery(VerifyToken('Provider'), VerifyToken('Everyone')
             });
         }
     } else {
-        Dataset.find({}, { provider: 0, consumers: 0 }, function (err, datasets) {
+        Dataset.find({}, { provider: 0 }, function (err, datasets) {
             if (err) return res.status(500).send("There was a problem finding the datasets.");
             res.status(200).send(datasets);
         });
@@ -176,7 +176,7 @@ router.get('/', isProviderQuery(VerifyToken('Provider'), VerifyToken('Everyone')
 
 // GETS A SINGLE DATASET FROM THE DATABASE
 router.get('/:id', VerifyToken('Everyone'), function (req, res) {
-    Dataset.findById(req.params.id, { provider: 0, consumers: 0 }, function (err, dataset) {
+    Dataset.findById(req.params.id, { provider: 0 }, function (err, dataset) {
         if (err) return res.status(500).send("There was a problem finding the dataset.");
         if (!dataset) return res.status(404).send("No dataset found.");
         res.status(200).send(dataset);
@@ -196,6 +196,29 @@ router.put('/:id', VerifyToken('Provider'), function (req, res) {
     Dataset.findByIdAndUpdate(req.params.id, req.body, { new: true }, function (err, dataset) {
         if (err) return res.status(500).send("There was a problem updating the dataset.");
         res.status(200).send(dataset);
+    });
+});
+
+// Allows EVERYONE to BUY a dataset. Note ... not using PUT as above since its locked to provider.
+router.post('/buy/:id', VerifyToken('Everyone'), function (req, res) {
+    Dataset.findById(req.params.id, { provider: 0 }, function (err, dataset) {
+        if (err) return res.status(500).send("There was a problem finding the dataset.");
+        if (!dataset) return res.status(404).send("No dataset found.");
+
+        const userId = req.userId;
+        dataset.consumers = dataset.consumers || [];
+        let found = dataset.consumers.find(c=>c.consumerId === userId);
+        if(found){
+            return res.status(400).send("Dataset already purchased!");
+        }
+        dataset.consumers.push({
+            consumerId: userId
+        });
+
+        Dataset.findByIdAndUpdate(req.params.id, dataset, { new: true }, function (err, dataset) {
+            if (err) return res.status(500).send("There was a problem updating the dataset.");
+            res.status(200).send(dataset);
+        });
     });
 });
 
