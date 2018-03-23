@@ -1,7 +1,7 @@
 var jwt = require('jsonwebtoken');
 var config = require('../config');
 
-function verifyToken(role){
+function verifyToken(role) {
     return function (req, res, next) {
         var token = req.headers['x-access-token'];
         if (!token)
@@ -13,7 +13,7 @@ function verifyToken(role){
                 return res.status(401).send({ auth: false, message: 'Failed to authorize the request.' });
             // if everything good, save to request for use in other routes
             req.userId = decoded.id;
-			req.user_role = decoded.role;
+            req.user_role = decoded.role;
             next();
         });
     };

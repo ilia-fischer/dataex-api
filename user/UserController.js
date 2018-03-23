@@ -25,7 +25,7 @@ router.post('/', VerifyToken('Administrator'), function (req, res) {
             email: req.body.email,
             role: req.body.role,
             password: hashedPassword,
-			balance: '0'
+            balance: '0'
         },
             function (err, user) {
                 if (err) return res.status(500).send("There was a problem adding the information to the database.");
@@ -36,94 +36,90 @@ router.post('/', VerifyToken('Administrator'), function (req, res) {
 
 // RETURNS ALL THE USERS IN THE DATABASE
 router.get('/', VerifyToken('Administrator'), function (req, res) {
-	
+
     if (req.query.email) {
-		
-		User.findOne({ email: req.query.email }, async (err, user) => {
+
+        User.findOne({ email: req.query.email }, async (err, user) => {
             if (err) return res.status(500).send("There was a problem finding the user.");
             if (!user) return res.status(500).send("User not found.");
-			
-				const json_request = {"owner": user.email};
 
-				await bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
-					
-					.then((result) => {
-						User.findOneAndUpdate({ email: req.query.email }, {balance: result.balance==null ? '0' : result.balance}, {new: true}, function(err, _users){
-							res.status(200).send(_users);
-						});
-					})
-					.catch((err) => {
-						User.findOneAndUpdate({ email: req.query.email }, {balance: 'error'}, {new: true}, function(err, _users){
-							res.status(200).send(_users);
-						});
-					});			 			
+            const json_request = { "owner": user.role === 'Administrator' ? 'TRDX' : user.email };
+
+            await bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
+
+                .then((result) => {
+                    User.findOneAndUpdate({ email: req.query.email }, { balance: result.balance === null ? '0' : result.balance }, { new: true }, function (err, _users) {
+                        res.status(200).send(_users);
+                    });
+                })
+                .catch((err) => {
+                    User.findOneAndUpdate({ email: req.query.email }, { balance: 'error' }, { new: true }, function (err, _users) {
+                        res.status(200).send(_users);
+                    });
+                });
         });
     }
-	else
-	{
-		const returned_users = [];
-		
-		User.find({}, async (err, users) => {
-			if (err) return res.status(500).send("There was a problem finding the users.");
-			
-			var count = users.length;
+    else {
+        const returned_users = [];
 
-			for (var i=0; i<users.length; ++i)
-			{
-				const json_request = {"owner": users[i].email};
-				
-				await bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
-					
-					.then((result) => {
-						
-						User.findOneAndUpdate({ email: users[i].email }, {balance: result.balance==null ? '0' : result.balance}, {multi: true}, function(err, _users) {
-							returned_users.push(_users);
-							
-							if (--count==0)
-							{
-								res.status(200).send(returned_users);					
-							}
-						});
-					})
-					.catch((err) => {
+        User.find({}, async (err, users) => {
+            if (err) return res.status(500).send("There was a problem finding the users.");
 
-						User.findOneAndUpdate({ email: users[i].email }, {balance: 'error'}, {new: true}, function(err, _users){
-							returned_users.push(_users);
-							
-							if (--count==0)
-							{
-								res.status(200).send(returned_users);					
-							}
-						});			 			
-					});
-			}
-		});
-	}
+            var count = users.length;
+
+            for (var i = 0; i < users.length; ++i) {
+                const json_request = { "owner": users[i].role === 'Administrator' ? 'TRDX' : users[i].email };
+
+                await bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
+
+                    .then((result) => {
+
+                        User.findOneAndUpdate({ email: users[i].email }, { balance: result.balance === null ? '0' : result.balance }, { multi: true }, function (err, _users) {
+                            returned_users.push(_users);
+
+                            if (--count === 0) {
+                                res.status(200).send(returned_users);
+                            }
+                        });
+                    })
+                    .catch((err) => {
+
+                        User.findOneAndUpdate({ email: users[i].email }, { balance: 'error' }, { new: true }, function (err, _users) {
+                            returned_users.push(_users);
+
+                            if (--count === 0) {
+                                res.status(200).send(returned_users);
+                            }
+                        });
+                    });
+            }
+        });
+    }
 });
 
 // GETS A SINGLE USER FROM THE DATABASE
 router.get('/:id', VerifyToken('Administrator'), function (req, res) {
-	
+
     User.findById(req.params.id, function (err, user) {
 
         if (err) return res.status(500).send("There was a problem finding the user.");
         if (!user) return res.status(404).send("No user found.");
-		
-			const json_request = {"owner": user.email};
-			
-			bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
-			
-					.then((result) => {
 
-						User.findOneAndUpdate({ email: user.email }, {balance: result.balance==null ? '0' : result.balance}, {new: true}, function(err, _users){
-							res.status(200).send(_users);
-						});
-					})
-					.catch((err) => {
-						User.findOneAndUpdate({ email: user.email }, {balance: 'error'}, {new: true}, function(err, _users){
-							res.status(200).send(_users[0]);
-						});
-					});			 			
+        const json_request = { "owner": user.role === 'Administrator' ? 'TRDX' : user.email };
+
+        bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
+
+            .then((result) => {
+
+                User.findOneAndUpdate({ email: user.email }, { balance: result.balance === null ? '0' : result.balance }, { new: true }, function (err, _users) {
+                    res.status(200).send(_users);
+                });
+            })
+            .catch((err) => {
+                User.findOneAndUpdate({ email: user.email }, { balance: 'error' }, { new: true }, function (err, _users) {
+                    res.status(200).send(_users[0]);
+                });
+            });
     });
 });
 
