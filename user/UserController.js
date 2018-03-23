@@ -65,6 +65,8 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
 		
 		User.find({}, async (err, users) => {
 			if (err) return res.status(500).send("There was a problem finding the users.");
+			
+			var count = users.length;
 
 			for (var i=0; i<users.length; ++i)
 			{
@@ -76,17 +78,25 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
 						
 						User.findOneAndUpdate({ email: users[i].email }, {balance: result.balance==null ? '0' : result.balance}, {multi: true}, function(err, _users) {
 							returned_users.push(_users);
+							
+							if (--count==0)
+							{
+								res.status(200).send(returned_users);					
+							}
 						});
 					})
 					.catch((err) => {
 
 						User.findOneAndUpdate({ email: users[i].email }, {balance: 'error'}, {new: true}, function(err, _users){
 							returned_users.push(_users);
+							
+							if (--count==0)
+							{
+								res.status(200).send(returned_users);					
+							}
 						});			 			
 					});
 			}
-			
-			res.status(200).send(returned_users);
 		});
 	}
 });
