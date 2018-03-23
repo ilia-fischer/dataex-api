@@ -70,15 +70,14 @@ router.get('/proxy/:id', VerifyToken('Everyone'), function (req, res) {
 
                     //console.dir(result);
 
-                    DataAccess.create({
-                        timestamp: new Date().toISOString(),
-                        userId: user.email,
-                        role: req.user_role,
-                        datasetId: req.params.id,
-                        url: dataset.url
+                    Transaction.create({
+                        consumer: {
+                            consumerId: user.email
+                        },
+                        datasetId: dataset._id
                     },
-                        function (err, dataset) {
-                            if (err) return res.status(500).send("There was a problem logging the download request to the database.");
+                        function (err, transaction) {
+                            if (err) return res.status(500).send("There was a problem logging the transaction to the database.");
 
                             const downloadUrl = new URL(dataset.url);
 
@@ -126,17 +125,14 @@ router.get('/redirect/:id', VerifyToken('Everyone'), function (req, res) {
 
                 .then((result) => {
 
-                    //console.dir(result);
-
-                    DataAccess.create({
-                        timestamp: new Date().toISOString(),
-                        userId: user.email,
-                        role: req.user_role,
-                        datasetId: req.params.id,
-                        url: dataset.url
+                    Transaction.create({
+                        consumer: {
+                            consumerId: user.email
+                        },
+                        datasetId: dataset._id
                     },
-                        function (err, dataset) {
-                            if (err) return res.status(500).send("There was a problem logging the download request to the database.");
+                        function (err, transaction) {
+                            if (err) return res.status(500).send("There was a problem logging the transaction to the database.");
                             res.redirect(dataset.url);
                         });
                 })
