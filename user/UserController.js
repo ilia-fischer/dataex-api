@@ -48,12 +48,14 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
             await bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
 
                 .then((result) => {
-                    User.findOneAndUpdate({ email: req.query.email }, { balance: result.balance === null ? '0' : result.balance }, { new: true }, function (err, _users) {
+                    let r = JSON.parse(result);
+                    User.findOneAndUpdate({ email: req.query.email }, { $set: { balance: r.balance } }, { new: true }, function (err, _users) {
                         res.status(200).send(_users);
                     });
                 })
                 .catch((err) => {
-                    User.findOneAndUpdate({ email: req.query.email }, { balance: 'error' }, { new: true }, function (err, _users) {
+                    console.log("USERS GET FAILED", err);
+                    User.findOneAndUpdate({ email: req.query.email }, { $set: { balance: '0' } }, { new: true }, function (err, _users) {
                         res.status(200).send(_users);
                     });
                 });
@@ -73,8 +75,8 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
                 await bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
 
                     .then((result) => {
-
-                        User.findOneAndUpdate({ email: users[i].email }, { balance: result.balance === null ? '0' : result.balance }, { multi: true }, function (err, _users) {
+                        let r = JSON.parse(result);
+                        User.findOneAndUpdate({ email: users[i].email }, { $set: { balance: r.balance } }, { new: true }, function (err, _users) {
                             returned_users.push(_users);
 
                             if (--count === 0) {
@@ -83,8 +85,8 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
                         });
                     })
                     .catch((err) => {
-
-                        User.findOneAndUpdate({ email: users[i].email }, { balance: 'error' }, { new: true }, function (err, _users) {
+                        console.log("USERS GET FAILED", err);
+                        User.findOneAndUpdate({ email: users[i].email }, { $set: { balance: '0' } }, { new: true }, function (err, _users) {
                             returned_users.push(_users);
 
                             if (--count === 0) {
@@ -110,14 +112,15 @@ router.get('/:id', VerifyToken('Administrator'), function (req, res) {
         bc.blockchainApiRequest(Config.blockchain_api_host, Config.blockchain_api_port, '/api/blockchain/account', json_request)
 
             .then((result) => {
-
-                User.findOneAndUpdate({ email: user.email }, { balance: result.balance === null ? '0' : result.balance }, { new: true }, function (err, _users) {
-                    res.status(200).send(_users);
+                let r = JSON.parse(result);
+                User.findOneAndUpdate({ email: user.email }, { $set: { balance: r.balance } }, { new: true }, function (err, _user) {
+                    res.status(200).send(_user);
                 });
             })
             .catch((err) => {
-                User.findOneAndUpdate({ email: user.email }, { balance: 'error' }, { new: true }, function (err, _users) {
-                    res.status(200).send(_users[0]);
+                console.log("USER GET FAILED", err);
+                User.findOneAndUpdate({ email: user.email }, { $set: { balance: '0' } }, { new: true }, function (err, _user) {
+                    res.status(200).send(_user);
                 });
             });
     });
