@@ -156,4 +156,15 @@ router.delete('/:id', VerifyToken('Administrator'), function (req, res) {
     });
 });
 
+// UPDATES USER'S BALANCE IN THE DATABASE
+router.put('/:id', VerifyToken('Administrator'), function (req, res) {
+    User.updateOne({ _id: req.params.id }, {
+        $set: { balance: req.body.balance }
+    },
+        function (err, user) {
+            if (err) return res.status(500).send("There was a problem updating the information to the database.");
+            res.status(200).send(user);
+        });
+});
+
 module.exports = router;
