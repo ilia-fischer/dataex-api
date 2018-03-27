@@ -49,7 +49,7 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
 
                 .then((result) => {
                     let r = JSON.parse(result);
-                    if (r.balance !== "" && r.balance !== "0") {
+                    if (r.balance != null && r.balance != "" && r.balance != "0") {
                         User.findOneAndUpdate({ email: req.query.email }, { $set: { balance: r.balance } }, { new: true }, function (err, _users) {
                             res.status(200).send(_users);
                         });
@@ -60,7 +60,6 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
                     }
                 })
                 .catch((err) => {
-                    console.log("USERS GET FAILED", err);
                     User.findOne({ email: req.query.email }, function (err, _users) {
                         res.status(200).send(_users);
                     });
@@ -82,7 +81,7 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
 
                     .then((result) => {
                         let r = JSON.parse(result);
-                        if (r.balance !== "" && r.balance !== "0") {
+                        if (r.balance != null && r.balance != "" && r.balance != "0") {
                             User.findOneAndUpdate({ email: users[i].email }, { $set: { balance: r.balance } }, { new: true }, function (err, _users) {
                                 returned_users.push(_users);
 
@@ -101,7 +100,6 @@ router.get('/', VerifyToken('Administrator'), function (req, res) {
                         }
                     })
                     .catch((err) => {
-                        console.log("USERS GET FAILED", err);
                         User.findOne({ email: users[i].email }, function (err, _users) {
                             returned_users.push(_users);
 
@@ -129,7 +127,7 @@ router.get('/:id', VerifyToken('Administrator'), function (req, res) {
 
             .then((result) => {
                 let r = JSON.parse(result);
-                if (r.balance !== "" && r.balance !== "0") {
+                if (r.balance != null && r.balance != "" && r.balance != "0") {
                     User.findOneAndUpdate({ email: user.email }, { $set: { balance: r.balance } }, { new: true }, function (err, _user) {
                         res.status(200).send(_user);
                     });
@@ -140,7 +138,6 @@ router.get('/:id', VerifyToken('Administrator'), function (req, res) {
                 }
             })
             .catch((err) => {
-                console.log("USER GET FAILED", err);
                 User.findOne({ email: user.email }, function (err, _user) {
                     res.status(200).send(_user);
                 });
